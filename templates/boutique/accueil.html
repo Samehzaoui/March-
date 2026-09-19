@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Accueil{% endblock %}
+{% block content %}
+
+<section class="hero py-5 mb-5">
+  <div class="container text-center py-4">
+    <h1 class="display-5 fw-bold">Des fruits & légumes frais, livrés chez vous 🇹🇳</h1>
+    <p class="lead">Directement des marchés de Tunisie, sélectionnés chaque jour pour vous.</p>
+    <a href="{% url 'boutique:liste_produits' %}" class="btn btn-light btn-lg fw-semibold text-success mt-2">Voir tous les produits</a>
+  </div>
+</section>
+
+<div class="container">
+  <h2 class="h4 fw-bold mb-3">Nos catégories</h2>
+  <div class="row g-3 mb-5">
+    {% for cat in categories %}
+    <div class="col-6 col-md-3">
+      <a href="{% url 'boutique:categorie' cat.slug %}" class="text-decoration-none">
+        <div class="card card-produit text-center p-3">
+          {% if cat.image %}
+            <img src="{{ cat.image.url }}" class="img-top mb-2 rounded" alt="{{ cat.nom }}">
+          {% else %}
+            <div class="img-top mb-2 rounded d-flex align-items-center justify-content-center fs-1">
+              {% if cat.type_produit == 'fruit' %}🍎{% else %}🥬{% endif %}
+            </div>
+          {% endif %}
+          <span class="fw-semibold text-dark">{{ cat.nom }}</span>
+        </div>
+      </a>
+    </div>
+    {% empty %}
+    <p class="text-muted">Aucune catégorie pour le moment.</p>
+    {% endfor %}
+  </div>
+
+  <h2 class="h4 fw-bold mb-3">Nouveautés</h2>
+  <div class="row g-3 mb-5">
+    {% for p in produits_vedette %}
+    <div class="col-6 col-md-3">
+      {% include 'boutique/_carte_produit.html' with produit=p %}
+    </div>
+    {% empty %}
+    <p class="text-muted">Aucun produit disponible pour le moment.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

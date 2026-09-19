@@ -1,0 +1,68 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Tableau de bord{% endblock %}
+{% block header %}📊 Tableau de bord{% endblock %}
+{% block dashboard_content %}
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <p class="text-muted small mb-1">Produits</p>
+      <p class="h3 fw-bold mb-0">{{ total_produits }}</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <p class="text-muted small mb-1">Catégories</p>
+      <p class="h3 fw-bold mb-0">{{ total_categories }}</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <p class="text-muted small mb-1">Commandes totales</p>
+      <p class="h3 fw-bold mb-0">{{ total_commandes }}</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <p class="text-muted small mb-1">Chiffre d'affaires</p>
+      <p class="h3 fw-bold mb-0 text-success">{{ ca_total }} DT</p>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card stat-card p-3 border-start border-4 border-warning">
+      <p class="mb-0">🕒 <strong>{{ commandes_en_attente }}</strong> commande(s) en attente de traitement</p>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card stat-card p-3 border-start border-4 border-danger">
+      <p class="mb-0">⚠️ <strong>{{ produits_rupture }}</strong> produit(s) en rupture de stock</p>
+    </div>
+  </div>
+</div>
+
+<div class="card stat-card p-3">
+  <h2 class="h6 fw-bold mb-3">Dernières commandes</h2>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead><tr><th>#</th><th>Client</th><th>Téléphone</th><th>Statut</th><th>Total</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for c in dernieres_commandes %}
+        <tr>
+          <td><a href="{% url 'dashboard:commande_detail' c.pk %}">#{{ c.id }}</a></td>
+          <td>{{ c.nom_client }}</td>
+          <td>{{ c.telephone }}</td>
+          <td><span class="badge bg-secondary">{{ c.get_statut_display }}</span></td>
+          <td>{{ c.total }} DT</td>
+          <td>{{ c.date_commande|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-muted">Aucune commande pour le moment.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

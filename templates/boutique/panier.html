@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Mon panier{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 fw-bold mb-4">🛒 Mon panier</h1>
+
+  {% if panier|length == 0 %}
+    <p class="text-muted">Votre panier est vide pour le moment.</p>
+    <a href="{% url 'boutique:liste_produits' %}" class="btn btn-success">Continuer mes achats</a>
+  {% else %}
+  <div class="table-responsive">
+    <table class="table align-middle bg-white rounded shadow-sm">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Prix unitaire</th>
+          <th>Quantité</th>
+          <th>Sous-total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in panier %}
+        <tr>
+          <td>{{ item.nom }}</td>
+          <td>{{ item.prix }} DT / {{ item.unite }}</td>
+          <td style="max-width:110px;">
+            <form method="post" action="{% url 'boutique:panier_modifier' item.id %}" class="d-flex">
+              {% csrf_token %}
+              <input type="number" name="quantite" value="{{ item.quantite }}" min="1" class="form-control form-control-sm">
+              <button class="btn btn-sm btn-outline-secondary ms-1">✓</button>
+            </form>
+          </td>
+          <td class="fw-semibold">{{ item.sous_total }} DT</td>
+          <td>
+            <a href="{% url 'boutique:panier_supprimer' item.id %}" class="btn btn-sm btn-outline-danger">✕</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3" class="text-end">Total</th>
+          <th colspan="2" class="prix-tag">{{ panier.total }} DT</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-between mt-3">
+    <a href="{% url 'boutique:liste_produits' %}" class="btn btn-outline-success">← Continuer mes achats</a>
+    <a href="{% url 'boutique:commander' %}" class="btn btn-success btn-lg">Passer la commande →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

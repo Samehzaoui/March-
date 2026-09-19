@@ -1,0 +1,32 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Catégories{% endblock %}
+{% block header %}📁 Gestion des catégories{% endblock %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'dashboard:categorie_ajouter' %}" class="btn btn-success btn-sm">+ Ajouter une catégorie</a>
+</div>
+
+<div class="card stat-card p-3">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>Nom</th><th>Type</th><th>Nb produits</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for c in categories %}
+        <tr>
+          <td>{{ c.nom }}</td>
+          <td>{% if c.type_produit == 'fruit' %}🍊 Fruit{% else %}🥬 Légume{% endif %}</td>
+          <td>{{ c.nb_produits }}</td>
+          <td>
+            <a href="{% url 'dashboard:categorie_modifier' c.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+            <a href="{% url 'dashboard:categorie_supprimer' c.pk %}" class="btn btn-sm btn-outline-danger">Supprimer</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-muted">Aucune catégorie.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

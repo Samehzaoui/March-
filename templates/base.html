@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Marché Tunisien Bio{% endblock %} - Fruits & Légumes en ligne</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-success" href="{% url 'boutique:accueil' %}">🥕 Marché<span class="text-dark">Tn</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="{% url 'boutique:accueil' %}">Accueil</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'boutique:liste_produits' %}?type=legume">Légumes</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'boutique:liste_produits' %}?type=fruit">Fruits</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'boutique:liste_produits' %}">Tous les produits</a></li>
+      </ul>
+      <form class="d-flex me-3" role="search" method="get" action="{% url 'boutique:liste_produits' %}">
+        <input class="form-control form-control-sm" type="search" name="q" placeholder="Rechercher un produit...">
+      </form>
+      <a href="{% url 'boutique:panier' %}" class="btn btn-outline-success btn-sm position-relative">
+        🛒 Panier
+        {% if request.session.panier %}
+          <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
+            {{ request.session.panier|length }}
+          </span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+</nav>
+
+{% if messages %}
+<div class="container mt-3">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="bg-dark text-light mt-5 py-4">
+  <div class="container text-center">
+    <p class="mb-1 fw-bold">🥕 MarchéTn — Fruits & Légumes frais de Tunisie</p>
+    <p class="small text-secondary mb-0">Livraison dans tous les gouvernorats · Paiement à la livraison</p>
+    <p class="small text-secondary mt-2 mb-0"><a href="{% url 'dashboard:login' %}" class="text-secondary">Espace administrateur</a></p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

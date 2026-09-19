@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Finaliser la commande{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 fw-bold mb-4">Finaliser ma commande</h1>
+
+  <div class="row g-4">
+    <div class="col-md-7">
+      <form method="post" class="bg-white p-4 rounded shadow-sm">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+          {{ field }}
+          {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-success btn-lg w-100">Confirmer la commande</button>
+        <p class="small text-muted mt-2 mb-0">Paiement à la livraison. Vous serez contacté(e) par téléphone pour confirmer.</p>
+      </form>
+    </div>
+
+    <div class="col-md-5">
+      <div class="bg-white p-4 rounded shadow-sm">
+        <h2 class="h6 fw-bold mb-3">Récapitulatif</h2>
+        <ul class="list-group list-group-flush mb-3">
+          {% for item in panier %}
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span>{{ item.quantite }} × {{ item.nom }}</span>
+            <span>{{ item.sous_total }} DT</span>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="d-flex justify-content-between fw-bold fs-5">
+          <span>Total</span>
+          <span class="prix-tag">{{ panier.total }} DT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

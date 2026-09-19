@@ -1,0 +1,68 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8faf7;
+}
+
+.hero {
+    background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+    color: white;
+    border-radius: 0 0 30px 30px;
+}
+
+.card-produit {
+    border: none;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    height: 100%;
+}
+
+.card-produit:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,.12);
+}
+
+.card-produit .img-top {
+    height: 170px;
+    object-fit: cover;
+    background: #eef4ec;
+}
+
+.badge-bio {
+    background-color: #43a047;
+}
+
+.prix-tag {
+    font-weight: 700;
+    color: #2e7d32;
+    font-size: 1.15rem;
+}
+
+.categorie-pill {
+    border-radius: 999px;
+    padding: .5rem 1.1rem;
+}
+
+.sidebar-dashboard {
+    min-height: 100vh;
+    background: #1b2d1e;
+    color: #e6ece7;
+}
+
+.sidebar-dashboard a {
+    color: #cfe0d2;
+    text-decoration: none;
+}
+
+.sidebar-dashboard a.active, .sidebar-dashboard a:hover {
+    background: #2e7d32;
+    color: #fff;
+    border-radius: 8px;
+}
+
+.stat-card {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}

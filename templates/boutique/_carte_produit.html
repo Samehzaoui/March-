@@ -1,0 +1,28 @@
+<div class="card card-produit">
+  <a href="{{ produit.get_absolute_url }}">
+    {% if produit.image %}
+      <img src="{{ produit.image.url }}" class="img-top w-100" alt="{{ produit.nom }}">
+    {% else %}
+      <div class="img-top w-100 d-flex align-items-center justify-content-center fs-1">
+        {% if produit.categorie.type_produit == 'fruit' %}🍊{% else %}🥕{% endif %}
+      </div>
+    {% endif %}
+  </a>
+  <div class="card-body">
+    {% if produit.bio %}<span class="badge badge-bio mb-1">Bio</span>{% endif %}
+    <h6 class="card-title mb-1">
+      <a href="{{ produit.get_absolute_url }}" class="text-decoration-none text-dark">{{ produit.nom }}</a>
+    </h6>
+    <p class="small text-muted mb-1">{{ produit.categorie.nom }}{% if produit.origine %} · {{ produit.origine }}{% endif %}</p>
+    <p class="prix-tag mb-2">{{ produit.prix }} DT <span class="small text-muted fw-normal">/ {{ produit.get_unite_display }}</span></p>
+    {% if produit.en_stock %}
+      <form method="post" action="{% url 'boutique:panier_ajouter' produit.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="quantite" value="1">
+        <button type="submit" class="btn btn-success btn-sm w-100">Ajouter au panier</button>
+      </form>
+    {% else %}
+      <button class="btn btn-secondary btn-sm w-100" disabled>Rupture de stock</button>
+    {% endif %}
+  </div>
+</div>

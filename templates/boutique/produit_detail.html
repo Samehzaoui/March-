@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}{{ produit.nom }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'boutique:accueil' %}">Accueil</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'boutique:categorie' produit.categorie.slug %}">{{ produit.categorie.nom }}</a></li>
+      <li class="breadcrumb-item active">{{ produit.nom }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4">
+    <div class="col-md-5">
+      {% if produit.image %}
+        <img src="{{ produit.image.url }}" class="img-fluid rounded-4 shadow-sm" alt="{{ produit.nom }}">
+      {% else %}
+        <div class="rounded-4 bg-light d-flex align-items-center justify-content-center" style="height:320px; font-size:5rem;">
+          {% if produit.categorie.type_produit == 'fruit' %}🍊{% else %}🥕{% endif %}
+        </div>
+      {% endif %}
+    </div>
+    <div class="col-md-7">
+      {% if produit.bio %}<span class="badge badge-bio mb-2">Produit Bio</span>{% endif %}
+      <h1 class="h3 fw-bold">{{ produit.nom }}</h1>
+      {% if produit.origine %}<p class="text-muted mb-2">Origine : {{ produit.origine }}</p>{% endif %}
+      <p class="display-6 prix-tag">{{ produit.prix }} DT <span class="fs-6 text-muted fw-normal">/ {{ produit.get_unite_display }}</span></p>
+
+      {% if produit.description %}
+        <p class="mt-3">{{ produit.description|linebreaks }}</p>
+      {% endif %}
+
+      {% if produit.en_stock %}
+        <p class="text-success small">✔ En stock ({{ produit.stock }} disponible{{ produit.stock|pluralize }})</p>
+        <form method="post" action="{% url 'boutique:panier_ajouter' produit.id %}" class="d-flex gap-2 mt-3" style="max-width:300px;">
+          {% csrf_token %}
+          <input type="number" name="quantite" value="1" min="1" max="{{ produit.stock }}" class="form-control">
+          <button type="submit" class="btn btn-success text-nowrap px-4">Ajouter</button>
+        </form>
+      {% else %}
+        <p class="text-danger">Rupture de stock</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if produits_similaires %}
+  <h2 class="h5 fw-bold mt-5 mb-3">Produits similaires</h2>
+  <div class="row g-3">
+    {% for p in produits_similaires %}
+    <div class="col-6 col-md-3">
+      {% include 'boutique/_carte_produit.html' with produit=p %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

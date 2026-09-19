@@ -1,0 +1,36 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Commandes{% endblock %}
+{% block header %}📦 Gestion des commandes{% endblock %}
+{% block dashboard_content %}
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+  <a href="{% url 'dashboard:commandes_liste' %}" class="btn btn-sm {% if not statut_actif %}btn-dark{% else %}btn-outline-dark{% endif %}">Toutes</a>
+  {% for val, label in statuts %}
+    <a href="?statut={{ val }}" class="btn btn-sm {% if statut_actif == val %}btn-dark{% else %}btn-outline-dark{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="card stat-card p-3">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>#</th><th>Client</th><th>Téléphone</th><th>Gouvernorat</th><th>Total</th><th>Statut</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for c in commandes %}
+        <tr>
+          <td>#{{ c.id }}</td>
+          <td>{{ c.nom_client }}</td>
+          <td>{{ c.telephone }}</td>
+          <td>{{ c.gouvernorat }}</td>
+          <td>{{ c.total }} DT</td>
+          <td><span class="badge bg-secondary">{{ c.get_statut_display }}</span></td>
+          <td>{{ c.date_commande|date:"d/m/Y H:i" }}</td>
+          <td><a href="{% url 'dashboard:commande_detail' c.pk %}" class="btn btn-sm btn-outline-primary">Détails</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-muted">Aucune commande.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Commande #{{ commande.id }}{% endblock %}
+{% block header %}📦 Commande #{{ commande.id }}{% endblock %}
+{% block dashboard_content %}
+
+<div class="row g-4">
+  <div class="col-md-7">
+    <div class="card stat-card p-4">
+      <h2 class="h6 fw-bold mb-3">Articles commandés</h2>
+      <table class="table table-sm">
+        <thead><tr><th>Produit</th><th>Qté</th><th>Prix unit.</th><th>Sous-total</th></tr></thead>
+        <tbody>
+          {% for ligne in commande.lignes.all %}
+          <tr>
+            <td>{{ ligne.nom_produit }}</td>
+            <td>{{ ligne.quantite }}</td>
+            <td>{{ ligne.prix_unitaire }} DT</td>
+            <td>{{ ligne.sous_total }} DT</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr><th colspan="3" class="text-end">Total</th><th>{{ commande.total }} DT</th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card stat-card p-4 mb-3">
+      <h2 class="h6 fw-bold mb-3">Informations client</h2>
+      <p class="mb-1"><strong>Nom :</strong> {{ commande.nom_client }}</p>
+      <p class="mb-1"><strong>Téléphone :</strong> {{ commande.telephone }}</p>
+      {% if commande.email %}<p class="mb-1"><strong>Email :</strong> {{ commande.email }}</p>{% endif %}
+      <p class="mb-1"><strong>Gouvernorat :</strong> {{ commande.gouvernorat }}</p>
+      <p class="mb-1"><strong>Adresse :</strong> {{ commande.adresse }}</p>
+      {% if commande.note %}<p class="mb-1"><strong>Note :</strong> {{ commande.note }}</p>{% endif %}
+      <p class="mb-0 text-muted small">Commande passée le {{ commande.date_commande|date:"d/m/Y à H:i" }}</p>
+    </div>
+
+    <div class="card stat-card p-4">
+      <h2 class="h6 fw-bold mb-3">Changer le statut</h2>
+      <form method="post">
+        {% csrf_token %}
+        <select name="statut" class="form-select mb-3">
+          {% for val, label in commande.STATUT_CHOICES %}
+            <option value="{{ val }}" {% if commande.statut == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-success w-100">Mettre à jour</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

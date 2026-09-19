@@ -1,0 +1,119 @@
+from django.db import models
+from django.urls import reverse
+from django.core.validators import MinValueValidator
+
+
+class Categorie(models.Model):
+    TYPE_CHOICES = [
+        ('legume', 'Légume'),
+        ('fruit', 'Fruit'),
+    ]
+    nom = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=110, unique=True)
+    type_produit = models.CharField(max_length=10, choices=TYPE_CHOICES, default='legume')
+    image = models.ImageField(upload_to='categories/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Catégorie"
+        verbose_name_plural = "Catégories"
+        ordering = ['nom']
+
+    def __str__(self):
+        return self.nom
+
+    def get_absolute_url(self):
+        return reverse('boutique:categorie', args=[self.slug])
+
+
+class Produit(models.Model):
+    UNITE_CHOICES = [
+        ('kg', 'Kilogramme'),
+        ('piece', 'Pièce'),
+        ('botte', 'Botte'),
+        ('caisse', 'Caisse'),
+    ]
+    categorie = models.ForeignKey(Categorie, related_name='produits', on_delete=models.CASCADE)
+    nom = models.CharField(max_length=150)
+    slug = models.SlugField(max_length=160, unique=True)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='produits/', blank=True, null=True)
+    prix = models.DecimalField(max_digits=8, decimal_places=3, validators=[MinValueValidator(0)],
+                                help_text="Prix en TND")
+    unite = models.CharField(max_length=10, choices=UNITE_CHOICES, default='kg')
+    stock = models.PositiveIntegerField(default=0, help_text="Quantité disponible")
+    origine = models.CharField(max_length=100, blank=True, help_text="Ex: Nabeul, Cap Bon, Kairouan...")
+    bio = models.BooleanField(default=False, verbose_name="Produit Bio")
+    disponible = models.BooleanField(default=True)
+    date_ajout = models.DateTimeField(auto_now_add=True)
+    date_maj = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Produit"
+        verbose_name_plural = "Produits"
+        ordering = ['nom']
+
+    def __str__(self):
+        return f"{self.nom} ({self.get_unite_display()})"
+
+    def get_absolute_url(self):
+        return reverse('boutique:produit_detail', args=[self.slug])
+
+    @property
+    def en_stock(self):
+        return self.stock > 0 and self.disponible
+
+
+class Commande(models.Model):
+    STATUT_CHOICES = [
+        ('en_attente', 'En attente'),
+        ('confirmee', 'Confirmée'),
+        ('en_livraison', 'En livraison'),
+        ('livree', 'Livrée'),
+        ('annulee', 'Annulée'),
+    ]
+    GOUVERNORAT_CHOICES = [
+        ('Ariana', 'Ariana'), ('Béja', 'Béja'), ('Ben Arous', 'Ben Arous'),
+        ('Bizerte', 'Bizerte'), ('Gabès', 'Gabès'), ('Gafsa', 'Gafsa'),
+        ('Jendouba', 'Jendouba'), ('Kairouan', 'Kairouan'), ('Kasserine', 'Kasserine'),
+        ('Kébili', 'Kébili'), ('Kef', 'Le Kef'), ('Mahdia', 'Mahdia'),
+        ('Manouba', 'Manouba'), ('Médenine', 'Médenine'), ('Monastir', 'Monastir'),
+        ('Nabeul', 'Nabeul'), ('Sfax', 'Sfax'), ('Sidi Bouzid', 'Sidi Bouzid'),
+        ('Siliana', 'Siliana'), ('Sousse', 'Sousse'), ('Tataouine', 'Tataouine'),
+        ('Tozeur', 'Tozeur'), ('Tunis', 'Tunis'), ('Zaghouan', 'Zaghouan'),
+    ]
+    nom_client = models.CharField(max_length=150)
+    telephone = models.CharField(max_length=20)
+    adresse = models.TextField()
+    gouvernorat = models.CharField(max_length=30, choices=GOUVERNORAT_CHOICES, default='Monastir')
+    email = models.EmailField(blank=True)
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='en_attente')
+    date_commande = models.DateTimeField(auto_now_add=True)
+    date_maj = models.DateTimeField(auto_now=True)
+    note = models.TextField(blank=True, help_text="Note du client ou consigne de livraison")
+
+    class Meta:
+        verbose_name = "Commande"
+        verbose_name_plural = "Commandes"
+        ordering = ['-date_commande']
+
+    def __str__(self):
+        return f"Commande #{self.pk} - {self.nom_client}"
+
+    @property
+    def total(self):
+        return sum(ligne.sous_total for ligne in self.lignes.all())
+
+
+class LigneCommande(models.Model):
+    commande = models.ForeignKey(Commande, related_name='lignes', on_delete=models.CASCADE)
+    produit = models.ForeignKey(Produit, related_name='lignes_commande', on_delete=models.SET_NULL, null=True)
+    nom_produit = models.CharField(max_length=150)
+    prix_unitaire = models.DecimalField(max_digits=8, decimal_places=3)
+    quantite = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantite} x {self.nom_produit}"
+
+    @property
+    def sous_total(self):
+        return self.prix_unitaire * self.quantite

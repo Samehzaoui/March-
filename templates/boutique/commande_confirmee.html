@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Commande confirmée{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+  <div class="mb-3" style="font-size:4rem;">✅</div>
+  <h1 class="h3 fw-bold text-success">Merci {{ commande.nom_client }} !</h1>
+  <p class="lead">Votre commande <strong>#{{ commande.id }}</strong> a été enregistrée avec succès.</p>
+  <p class="text-muted">Nous vous contacterons au {{ commande.telephone }} pour confirmer la livraison à {{ commande.gouvernorat }}.</p>
+
+  <div class="card mx-auto mt-4 shadow-sm" style="max-width:500px;">
+    <div class="card-body text-start">
+      <h2 class="h6 fw-bold">Détails de la commande</h2>
+      <ul class="list-group list-group-flush mb-3">
+        {% for ligne in commande.lignes.all %}
+        <li class="list-group-item d-flex justify-content-between px-0">
+          <span>{{ ligne.quantite }} × {{ ligne.nom_produit }}</span>
+          <span>{{ ligne.sous_total }} DT</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Total</span>
+        <span class="prix-tag">{{ commande.total }} DT</span>
+      </div>
+    </div>
+  </div>
+
+  <a href="{% url 'boutique:accueil' %}" class="btn btn-success btn-lg mt-4">Retour à l'accueil</a>
+</div>
+{% endblock %}

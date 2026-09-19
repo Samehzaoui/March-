@@ -1,0 +1,14 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Confirmer la suppression{% endblock %}
+{% block header %}🗑️ Confirmer la suppression{% endblock %}
+{% block dashboard_content %}
+
+<div class="card stat-card p-4" style="max-width:500px;">
+  <p>Êtes-vous sûr de vouloir supprimer <strong>« {{ objet }} »</strong> ? Cette action est irréversible.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+    <a href="javascript:history.back()" class="btn btn-outline-secondary">Annuler</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Produits{% endblock %}
+{% block header %}🥬 Gestion des produits{% endblock %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <form method="get" class="d-flex">
+    <input type="search" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Rechercher un produit...">
+  </form>
+  <a href="{% url 'dashboard:produit_ajouter' %}" class="btn btn-success btn-sm">+ Ajouter un produit</a>
+</div>
+
+<div class="card stat-card p-3">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th></th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Disponible</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for p in produits %}
+        <tr>
+          <td>
+            {% if p.image %}<img src="{{ p.image.url }}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">
+            {% else %}<span class="fs-4">{% if p.categorie.type_produit == 'fruit' %}🍊{% else %}🥕{% endif %}</span>{% endif %}
+          </td>
+          <td>{{ p.nom }}{% if p.bio %} <span class="badge badge-bio">Bio</span>{% endif %}</td>
+          <td>{{ p.categorie.nom }}</td>
+          <td>{{ p.prix }} DT / {{ p.get_unite_display }}</td>
+          <td>{% if p.stock == 0 %}<span class="text-danger fw-semibold">0</span>{% else %}{{ p.stock }}{% endif %}</td>
+          <td>{% if p.disponible %}<span class="badge bg-success">Oui</span>{% else %}<span class="badge bg-secondary">Non</span>{% endif %}</td>
+          <td>
+            <a href="{% url 'dashboard:produit_modifier' p.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+            <a href="{% url 'dashboard:produit_supprimer' p.pk %}" class="btn btn-sm btn-outline-danger">Supprimer</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-muted">Aucun produit.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
