@@ -1,9 +1,5 @@
 __pycache__/
 *.py[cod]
-*.sqlite3
-db.sqlite3
-media/produits/
-media/categories/
 .env
 venv/
 *.log

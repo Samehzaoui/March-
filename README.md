@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🥕 MarchéTn — Application Django de vente de fruits & légumes en ligne
 
 Application e-commerce Django destinée au marché tunisien, permettant de vendre
@@ -121,3 +122,6 @@ Deux façons de procéder :
 2. Depuis l'**admin Django** (`/admin/`) — pour une gestion en masse ou avancée.
 
 Bonne vente ! 🥬🍎🍊
+=======
+# Marché
+>>>>>>> 2d4664c936f0ae2c51136ea9ad1809f2ad24463e
