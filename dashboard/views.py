@@ -6,8 +6,8 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum, Count, Q
 
-from boutique.models import Produit, Categorie, Commande, LigneCommande
-from boutique.forms import ProduitForm, CategorieForm
+from boutique.models import Produit, Categorie, Commande, LigneCommande, MoyenPaiement, ImageAccueil
+from boutique.forms import ProduitForm, CategorieForm, MoyenPaiementForm, ImageAccueilForm
 
 
 def est_staff(user):
@@ -179,6 +179,104 @@ def commandes_liste(request):
         'statut_actif': statut or '',
         'statuts': Commande.STATUT_CHOICES,
     })
+
+
+# ---------- Moyens de paiement ----------
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def paiements_liste(request):
+    moyens = MoyenPaiement.objects.all()
+    return render(request, 'dashboard/paiements_liste.html', {'moyens': moyens})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def paiement_ajouter(request):
+    if request.method == 'POST':
+        form = MoyenPaiementForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Moyen de paiement ajouté.")
+            return redirect('dashboard:paiements_liste')
+    else:
+        form = MoyenPaiementForm()
+    return render(request, 'dashboard/paiement_form.html', {'form': form, 'titre': 'Ajouter un moyen de paiement'})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def paiement_modifier(request, pk):
+    moyen = get_object_or_404(MoyenPaiement, pk=pk)
+    if request.method == 'POST':
+        form = MoyenPaiementForm(request.POST, request.FILES, instance=moyen)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Moyen de paiement mis à jour.")
+            return redirect('dashboard:paiements_liste')
+    else:
+        form = MoyenPaiementForm(instance=moyen)
+    return render(request, 'dashboard/paiement_form.html', {'form': form, 'titre': f'Modifier « {moyen.nom} »'})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def paiement_supprimer(request, pk):
+    moyen = get_object_or_404(MoyenPaiement, pk=pk)
+    if request.method == 'POST':
+        moyen.delete()
+        messages.success(request, "Moyen de paiement supprimé.")
+        return redirect('dashboard:paiements_liste')
+    return render(request, 'dashboard/confirmer_suppression.html', {'objet': moyen})
+
+
+# ---------- Images d'accueil (diaporama) ----------
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def slides_liste(request):
+    slides = ImageAccueil.objects.all()
+    return render(request, 'dashboard/slides_liste.html', {'slides': slides})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def slide_ajouter(request):
+    if request.method == 'POST':
+        form = ImageAccueilForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Image ajoutée au diaporama.")
+            return redirect('dashboard:slides_liste')
+    else:
+        form = ImageAccueilForm()
+    return render(request, 'dashboard/slide_form.html', {'form': form, 'titre': 'Ajouter une image'})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def slide_modifier(request, pk):
+    slide = get_object_or_404(ImageAccueil, pk=pk)
+    if request.method == 'POST':
+        form = ImageAccueilForm(request.POST, request.FILES, instance=slide)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Image mise à jour.")
+            return redirect('dashboard:slides_liste')
+    else:
+        form = ImageAccueilForm(instance=slide)
+    return render(request, 'dashboard/slide_form.html', {'form': form, 'titre': "Modifier l'image"})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def slide_supprimer(request, pk):
+    slide = get_object_or_404(ImageAccueil, pk=pk)
+    if request.method == 'POST':
+        slide.delete()
+        messages.success(request, "Image supprimée.")
+        return redirect('dashboard:slides_liste')
+    return render(request, 'dashboard/confirmer_suppression.html', {'objet': slide})
 
 
 @login_required(login_url='dashboard:login')

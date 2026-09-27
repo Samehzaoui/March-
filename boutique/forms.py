@@ -1,5 +1,5 @@
 from django import forms
-from .models import Commande, Produit, Categorie
+from .models import Commande, Produit, Categorie, MoyenPaiement, ImageAccueil
 
 
 class CommandeForm(forms.ModelForm):
@@ -39,6 +39,30 @@ class ProduitForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['slug'].required = False
+
+
+class MoyenPaiementForm(forms.ModelForm):
+    class Meta:
+        model = MoyenPaiement
+        fields = ['nom', 'logo', 'ordre', 'actif']
+        widgets = {
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Visa, D17, BH Bank...'}),
+            'logo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'ordre': forms.NumberInput(attrs={'class': 'form-control'}),
+            'actif': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
+class ImageAccueilForm(forms.ModelForm):
+    class Meta:
+        model = ImageAccueil
+        fields = ['titre', 'image', 'ordre', 'actif']
+        widgets = {
+            'titre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optionnel'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'ordre': forms.NumberInput(attrs={'class': 'form-control'}),
+            'actif': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
 
 
 class CategorieForm(forms.ModelForm):

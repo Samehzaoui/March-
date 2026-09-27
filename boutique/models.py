@@ -7,10 +7,15 @@ class Categorie(models.Model):
     TYPE_CHOICES = [
         ('legume', 'Légume'),
         ('fruit', 'Fruit'),
+        ('poisson', 'Poisson'),
+        ('viande', 'Viande'),
+        ('produit_laitier', 'Produit laitier'),
+        ('epicerie', 'Épicerie'),
+        ('autre', 'Autre'),
     ]
     nom = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=110, unique=True)
-    type_produit = models.CharField(max_length=10, choices=TYPE_CHOICES, default='legume')
+    type_produit = models.CharField(max_length=20, choices=TYPE_CHOICES, default='legume')
     image = models.ImageField(upload_to='categories/', blank=True, null=True)
 
     class Meta:
@@ -117,3 +122,35 @@ class LigneCommande(models.Model):
     @property
     def sous_total(self):
         return self.prix_unitaire * self.quantite
+
+
+class MoyenPaiement(models.Model):
+    """Logo d'un moyen de paiement affiché en barre défilante sur l'accueil."""
+    nom = models.CharField(max_length=80, help_text="Ex: Visa, D17, BH Bank, Mastercard...")
+    logo = models.ImageField(upload_to='paiements/')
+    ordre = models.PositiveIntegerField(default=0, help_text="Ordre d'affichage (plus petit = plus à gauche)")
+    actif = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Moyen de paiement"
+        verbose_name_plural = "Moyens de paiement"
+        ordering = ['ordre', 'nom']
+
+    def __str__(self):
+        return self.nom
+
+
+class ImageAccueil(models.Model):
+    """Image du diaporama d'arrière-plan de la page d'accueil."""
+    titre = models.CharField(max_length=150, blank=True, help_text="Titre optionnel affiché sur l'image")
+    image = models.ImageField(upload_to='accueil_slides/')
+    ordre = models.PositiveIntegerField(default=0, help_text="Ordre d'affichage dans le diaporama")
+    actif = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Image d'accueil"
+        verbose_name_plural = "Images d'accueil"
+        ordering = ['ordre', 'id']
+
+    def __str__(self):
+        return self.titre or f"Slide #{self.pk}"

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.views.decorators.http import require_POST
 
-from .models import Categorie, Produit, Commande, LigneCommande
+from .models import Categorie, Produit, Commande, LigneCommande, MoyenPaiement, ImageAccueil
 from .panier import Panier
 from .forms import CommandeForm
 
@@ -11,9 +11,13 @@ from .forms import CommandeForm
 def accueil(request):
     categories = Categorie.objects.all()
     produits_vedette = Produit.objects.filter(disponible=True).order_by('-date_ajout')[:8]
+    slides = ImageAccueil.objects.filter(actif=True)
+    moyens_paiement = MoyenPaiement.objects.filter(actif=True)
     return render(request, 'boutique/accueil.html', {
         'categories': categories,
         'produits_vedette': produits_vedette,
+        'slides': slides,
+        'moyens_paiement': moyens_paiement,
     })
 
 
@@ -27,7 +31,8 @@ def liste_produits(request):
     if categorie_slug:
         categorie_active = get_object_or_404(Categorie, slug=categorie_slug)
         produits = produits.filter(categorie=categorie_active)
-    if type_produit in ('legume', 'fruit'):
+    types_valides = dict(Categorie.TYPE_CHOICES)
+    if type_produit in types_valides:
         produits = produits.filter(categorie__type_produit=type_produit)
     if q:
         produits = produits.filter(Q(nom__icontains=q) | Q(description__icontains=q))

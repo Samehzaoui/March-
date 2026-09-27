@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
+{% load boutique_extras %}
 {% block title %}{% if categorie_active %}{{ categorie_active.nom }}{% else %}Nos produits{% endif %}{% endblock %}
 {% block content %}
 <div class="container py-4">
 
   <div class="d-flex flex-wrap gap-2 mb-4">
     <a href="{% url 'boutique:liste_produits' %}" class="btn btn-sm categorie-pill {% if not categorie_active and not type_actif %}btn-success{% else %}btn-outline-success{% endif %}">Tous</a>
-    <a href="{% url 'boutique:liste_produits' %}?type=legume" class="btn btn-sm categorie-pill {% if type_actif == 'legume' %}btn-success{% else %}btn-outline-success{% endif %}">🥬 Légumes</a>
-    <a href="{% url 'boutique:liste_produits' %}?type=fruit" class="btn btn-sm categorie-pill {% if type_actif == 'fruit' %}btn-success{% else %}btn-outline-success{% endif %}">🍎 Fruits</a>
+    {% for code, label in types_produits_nav %}
+      <a href="{% url 'boutique:liste_produits' %}?type={{ code }}" class="btn btn-sm categorie-pill {% if type_actif == code %}btn-success{% else %}btn-outline-success{% endif %}">{{ code|emoji_type }} {{ label }}</a>
+    {% endfor %}
     {% for cat in categories %}
       <a href="{% url 'boutique:categorie' cat.slug %}" class="btn btn-sm categorie-pill {% if categorie_active.id == cat.id %}btn-dark{% else %}btn-outline-dark{% endif %}">{{ cat.nom }}</a>
     {% endfor %}

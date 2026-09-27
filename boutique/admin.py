@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Categorie, Produit, Commande, LigneCommande
+from .models import Categorie, Produit, Commande, LigneCommande, MoyenPaiement, ImageAccueil
 
 
 @admin.register(Categorie)
@@ -29,3 +29,15 @@ class CommandeAdmin(admin.ModelAdmin):
     list_filter = ('statut', 'gouvernorat')
     search_fields = ('nom_client', 'telephone', 'email')
     inlines = [LigneCommandeInline]
+
+
+@admin.register(MoyenPaiement)
+class MoyenPaiementAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'ordre', 'actif')
+    list_editable = ('ordre', 'actif')
+
+
+@admin.register(ImageAccueil)
+class ImageAccueilAdmin(admin.ModelAdmin):
+    list_display = ('titre', 'ordre', 'actif')
+    list_editable = ('ordre', 'actif')

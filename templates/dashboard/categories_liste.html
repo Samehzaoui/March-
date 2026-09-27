@@ -1,4 +1,5 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load boutique_extras %}
 {% block title %}Catégories{% endblock %}
 {% block header %}📁 Gestion des catégories{% endblock %}
 {% block dashboard_content %}
@@ -15,7 +16,7 @@
         {% for c in categories %}
         <tr>
           <td>{{ c.nom }}</td>
-          <td>{% if c.type_produit == 'fruit' %}🍊 Fruit{% else %}🥬 Légume{% endif %}</td>
+          <td>{{ c.type_produit|emoji_type }} {{ c.get_type_produit_display }}</td>
           <td>{{ c.nb_produits }}</td>
           <td>
             <a href="{% url 'dashboard:categorie_modifier' c.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>

@@ -9,6 +9,79 @@ body {
     border-radius: 0 0 30px 30px;
 }
 
+/* Diaporama d'arrière-plan de l'accueil */
+.hero-slideshow {
+    position: relative;
+    color: white;
+    border-radius: 0 0 30px 30px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+    min-height: 380px;
+    display: flex;
+    align-items: center;
+}
+
+.hero-slides {
+    position: absolute;
+    inset: 0;
+}
+
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.hero-slide.active {
+    opacity: 1;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(27,45,30,.65) 0%, rgba(46,125,50,.55) 100%);
+}
+
+.hero-content {
+    z-index: 2;
+    width: 100%;
+}
+
+/* Barre défilante des moyens de paiement */
+.payment-strip {
+    background: #ffffff;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.payment-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 2.5rem;
+    animation: paymentScroll 22s linear infinite;
+}
+
+.payment-strip:hover .payment-track {
+    animation-play-state: paused;
+}
+
+.payment-logo {
+    height: 34px;
+    object-fit: contain;
+    opacity: .85;
+    filter: grayscale(15%);
+}
+
+@keyframes paymentScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
 .card-produit {
     border: none;
     border-radius: 14px;

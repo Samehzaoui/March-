@@ -1,10 +1,11 @@
+{% load boutique_extras %}
 <div class="card card-produit">
   <a href="{{ produit.get_absolute_url }}">
     {% if produit.image %}
       <img src="{{ produit.image.url }}" class="img-top w-100" alt="{{ produit.nom }}">
     {% else %}
       <div class="img-top w-100 d-flex align-items-center justify-content-center fs-1">
-        {% if produit.categorie.type_produit == 'fruit' %}🍊{% else %}🥕{% endif %}
+        {{ produit.categorie.type_produit|emoji_type }}
       </div>
     {% endif %}
   </a>

@@ -1,14 +1,36 @@
 {% extends 'base.html' %}
+{% load boutique_extras %}
 {% block title %}Accueil{% endblock %}
 {% block content %}
 
-<section class="hero py-5 mb-5">
-  <div class="container text-center py-4">
+<section class="hero-slideshow py-5 mb-4">
+  {% if slides %}
+    <div class="hero-slides" id="heroSlides">
+      {% for s in slides %}
+        <div class="hero-slide {% if forloop.first %}active{% endif %}" style="background-image:url('{{ s.image.url }}');"></div>
+      {% endfor %}
+    </div>
+    <div class="hero-overlay"></div>
+  {% endif %}
+  <div class="container text-center py-4 position-relative hero-content">
     <h1 class="display-5 fw-bold">Des fruits & légumes frais, livrés chez vous 🇹🇳</h1>
     <p class="lead">Directement des marchés de Tunisie, sélectionnés chaque jour pour vous.</p>
     <a href="{% url 'boutique:liste_produits' %}" class="btn btn-light btn-lg fw-semibold text-success mt-2">Voir tous les produits</a>
   </div>
 </section>
+
+{% if moyens_paiement %}
+<div class="payment-strip py-3 mb-5">
+  <div class="payment-track">
+    {% for m in moyens_paiement %}
+      <img src="{{ m.logo.url }}" alt="{{ m.nom }}" title="{{ m.nom }}" class="payment-logo">
+    {% endfor %}
+    {% for m in moyens_paiement %}
+      <img src="{{ m.logo.url }}" alt="{{ m.nom }}" title="{{ m.nom }}" class="payment-logo" aria-hidden="true">
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
 <div class="container">
   <h2 class="h4 fw-bold mb-3">Nos catégories</h2>
@@ -21,7 +43,7 @@
             <img src="{{ cat.image.url }}" class="img-top mb-2 rounded" alt="{{ cat.nom }}">
           {% else %}
             <div class="img-top mb-2 rounded d-flex align-items-center justify-content-center fs-1">
-              {% if cat.type_produit == 'fruit' %}🍎{% else %}🥬{% endif %}
+              {{ cat.type_produit|emoji_type }}
             </div>
           {% endif %}
           <span class="fw-semibold text-dark">{{ cat.nom }}</span>
@@ -44,4 +66,19 @@
     {% endfor %}
   </div>
 </div>
+
+{% if slides %}
+<script>
+(function() {
+  var slides = document.querySelectorAll('#heroSlides .hero-slide');
+  if (slides.length <= 1) return;
+  var current = 0;
+  setInterval(function() {
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+  }, 12000); // change toutes les 12 secondes
+})();
+</script>
+{% endif %}
 {% endblock %}

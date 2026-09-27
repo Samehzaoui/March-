@@ -1,0 +1,33 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Moyens de paiement{% endblock %}
+{% block header %}💳 Moyens de paiement{% endblock %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'dashboard:paiement_ajouter' %}" class="btn btn-success btn-sm">+ Ajouter un moyen de paiement</a>
+</div>
+
+<div class="card stat-card p-3">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th></th><th>Nom</th><th>Ordre</th><th>Actif</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for m in moyens %}
+        <tr>
+          <td><img src="{{ m.logo.url }}" style="height:32px;object-fit:contain;"></td>
+          <td>{{ m.nom }}</td>
+          <td>{{ m.ordre }}</td>
+          <td>{% if m.actif %}<span class="badge bg-success">Oui</span>{% else %}<span class="badge bg-secondary">Non</span>{% endif %}</td>
+          <td>
+            <a href="{% url 'dashboard:paiement_modifier' m.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+            <a href="{% url 'dashboard:paiement_supprimer' m.pk %}" class="btn btn-sm btn-outline-danger">Supprimer</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-muted">Aucun moyen de paiement. Ajoutez Visa, D17, BH Bank, etc.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
