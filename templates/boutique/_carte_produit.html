@@ -1,16 +1,24 @@
 {% load boutique_extras %}
 <div class="card card-produit">
   <a href="{{ produit.get_absolute_url }}">
-    {% if produit.image %}
-      <img src="{{ produit.image.url }}" class="img-top w-100" alt="{{ produit.nom }}">
-    {% else %}
-      <div class="img-top w-100 d-flex align-items-center justify-content-center fs-1">
-        {{ produit.categorie.type_produit|emoji_type }}
-      </div>
-    {% endif %}
+    <div class="produit-image-wrap {% if not produit.en_stock %}indisponible{% endif %}">
+      {% if not produit.en_stock %}
+        <span class="badge-ruban rupture">Rupture de stock</span>
+      {% elif produit.est_nouveau %}
+        <span class="badge-ruban nouveau">Nouveau</span>
+      {% endif %}
+      {% if produit.image %}
+        <img src="{{ produit.image.url }}" class="img-top w-100" alt="{{ produit.nom }}">
+      {% else %}
+        <div class="img-top w-100 d-flex align-items-center justify-content-center fs-1">
+          {{ produit.categorie.type_produit|emoji_type }}
+        </div>
+      {% endif %}
+    </div>
   </a>
   <div class="card-body">
     {% if produit.bio %}<span class="badge badge-bio mb-1">Bio</span>{% endif %}
+    {% if produit.en_stock %}<span class="badge badge-disponible mb-1">Disponible</span>{% endif %}
     <h6 class="card-title mb-1">
       <a href="{{ produit.get_absolute_url }}" class="text-decoration-none text-dark">{{ produit.nom }}</a>
     </h6>

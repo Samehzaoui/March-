@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# 🥕 MarchéTn — Application Django de vente de fruits & légumes en ligne
+# 🥕 9ouffty — Application Django de vente de fruits, légumes, poissons & viandes en ligne
 
 Application e-commerce Django destinée au marché tunisien, permettant de vendre
 tous types de fruits et légumes en ligne, avec un espace d'administration
@@ -15,6 +14,14 @@ tous types de fruits et légumes en ligne, avec un espace d'administration
 - Tunnel de commande (nom, téléphone, adresse, gouvernorat, note de livraison)
 - Page de confirmation de commande
 - Prix en Dinar Tunisien (DT), les 24 gouvernorats disponibles à la livraison
+
+### Nouveautés récentes
+- **Catégories multiples et extensibles** : au-delà de Légumes/Fruits, vous pouvez créer des catégories de type Poissons, Viandes, Produits laitiers, Épicerie, etc.
+- **Barre de moyens de paiement défilante** (Visa, D17, BH Bank...) affichée sur l'accueil, gérée depuis le dashboard (`/gestion/paiements/`)
+- **Diaporama d'arrière-plan sur l'accueil** : 5-6 images qui changent automatiquement toutes les 12 secondes, gérées depuis le dashboard (`/gestion/slides/`)
+- **Badges "Nouveau" et "Rupture de stock"** en ruban diagonal sur la photo des produits (automatique : "Nouveau" pendant 7 jours après ajout, "Rupture de stock" dès que la quantité = 0)
+- **Menu déroulant dynamique** "Tous les produits" dans la navbar, listant tous les types de catégories existants
+- Copyright en pied de page : © 9ouffty — Développé par Sameh Ezzaoui
 
 ### Espace administrateur (dashboard)
 - **Page de connexion dédiée** (`/gestion/login/`) avec identifiant + mot de passe,
@@ -122,6 +129,3 @@ Deux façons de procéder :
 2. Depuis l'**admin Django** (`/admin/`) — pour une gestion en masse ou avancée.
 
 Bonne vente ! 🥬🍎🍊
-=======
-# Marché
->>>>>>> 2d4664c936f0ae2c51136ea9ad1809f2ad24463e

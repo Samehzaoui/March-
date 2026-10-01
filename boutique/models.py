@@ -67,6 +67,15 @@ class Produit(models.Model):
     def en_stock(self):
         return self.stock > 0 and self.disponible
 
+    @property
+    def est_nouveau(self):
+        """Vrai si le produit a été ajouté il y a moins de 7 jours."""
+        from django.utils import timezone
+        from datetime import timedelta
+        if not self.date_ajout:
+            return False
+        return timezone.now() - self.date_ajout <= timedelta(days=7)
+
 
 class Commande(models.Model):
     STATUT_CHOICES = [

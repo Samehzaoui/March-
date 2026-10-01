@@ -82,6 +82,43 @@ body {
     100% { transform: translateX(-50%); }
 }
 
+/* Bandeau de bienvenue défilant (news ticker) sur l'accueil */
+.welcome-ticker {
+    background: linear-gradient(90deg, #2e7d32, #43a047);
+    color: #fff;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.ticker-track {
+    display: inline-flex;
+    align-items: center;
+    animation: tickerScroll 28s linear infinite;
+}
+
+.welcome-ticker:hover .ticker-track {
+    animation-play-state: paused;
+}
+
+.ticker-item {
+    padding: 0 2.5rem;
+    font-weight: 600;
+    font-size: .95rem;
+    position: relative;
+}
+
+.ticker-item::after {
+    content: "•";
+    position: absolute;
+    right: -0.1rem;
+    opacity: .6;
+}
+
+@keyframes tickerScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
 .card-produit {
     border: none;
     border-radius: 14px;
@@ -102,8 +139,53 @@ body {
     background: #eef4ec;
 }
 
+/* Conteneur de l'image pour positionner le bandeau */
+.produit-image-wrap {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Bandeau diagonal type "ruban" en coin de la photo */
+.badge-ruban {
+    position: absolute;
+    top: 14px;
+    right: -38px;
+    width: 150px;
+    padding: 5px 0;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    color: #fff;
+    text-transform: uppercase;
+    transform: rotate(38deg);
+    box-shadow: 0 2px 6px rgba(0,0,0,.25);
+    z-index: 3;
+    pointer-events: none;
+}
+
+.badge-ruban.rupture {
+    background: linear-gradient(135deg, #e53935, #b71c1c);
+}
+
+.badge-ruban.nouveau {
+    background: linear-gradient(135deg, #43a047, #2e7d32);
+}
+
+/* Voile grisé sur la photo quand le produit est en rupture */
+.produit-image-wrap.indisponible .img-top {
+    filter: grayscale(60%);
+    opacity: .6;
+}
+
 .badge-bio {
-    background-color: #43a047;
+    background-color: #a5d6a7;
+    color: #1b5e20;
+}
+
+.badge-disponible {
+    background-color: #fdd835;
+    color: #5d4a00;
 }
 
 .prix-tag {

@@ -1,4 +1,4 @@
-from .models import Categorie
+from .models import Categorie, MoyenPaiement
 
 
 def types_categories(request):
@@ -13,3 +13,9 @@ def types_categories(request):
     ]
     types_disponibles.sort(key=lambda t: t[1])
     return {'types_produits_nav': types_disponibles}
+
+
+def moyens_paiement_global(request):
+    """Rend les moyens de paiement actifs disponibles sur toutes les pages
+    (barre défilante affichée dans le template de base)."""
+    return {'moyens_paiement_global': MoyenPaiement.objects.filter(actif=True)}

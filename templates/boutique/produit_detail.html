@@ -13,16 +13,24 @@
 
   <div class="row g-4">
     <div class="col-md-5">
-      {% if produit.image %}
-        <img src="{{ produit.image.url }}" class="img-fluid rounded-4 shadow-sm" alt="{{ produit.nom }}">
-      {% else %}
-        <div class="rounded-4 bg-light d-flex align-items-center justify-content-center" style="height:320px; font-size:5rem;">
-          {{ produit.categorie.type_produit|emoji_type }}
-        </div>
-      {% endif %}
+      <div class="produit-image-wrap rounded-4 {% if not produit.en_stock %}indisponible{% endif %}">
+        {% if not produit.en_stock %}
+          <span class="badge-ruban rupture">Rupture de stock</span>
+        {% elif produit.est_nouveau %}
+          <span class="badge-ruban nouveau">Nouveau</span>
+        {% endif %}
+        {% if produit.image %}
+          <img src="{{ produit.image.url }}" class="img-fluid rounded-4 shadow-sm w-100" alt="{{ produit.nom }}">
+        {% else %}
+          <div class="rounded-4 bg-light d-flex align-items-center justify-content-center" style="height:320px; font-size:5rem;">
+            {{ produit.categorie.type_produit|emoji_type }}
+          </div>
+        {% endif %}
+      </div>
     </div>
     <div class="col-md-7">
       {% if produit.bio %}<span class="badge badge-bio mb-2">Produit Bio</span>{% endif %}
+      {% if produit.en_stock %}<span class="badge badge-disponible mb-2">Disponible</span>{% endif %}
       <h1 class="h3 fw-bold">{{ produit.nom }}</h1>
       {% if produit.origine %}<p class="text-muted mb-2">Origine : {{ produit.origine }}</p>{% endif %}
       <p class="display-6 prix-tag">{{ produit.prix }} DT <span class="fs-6 text-muted fw-normal">/ {{ produit.get_unite_display }}</span></p>

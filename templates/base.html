@@ -64,6 +64,19 @@
 {% block content %}{% endblock %}
 </main>
 
+{% if moyens_paiement_global %}
+<div class="payment-strip py-3">
+  <div class="payment-track">
+    {% for m in moyens_paiement_global %}
+      <img src="{{ m.logo.url }}" alt="{{ m.nom }}" title="{{ m.nom }}" class="payment-logo">
+    {% endfor %}
+    {% for m in moyens_paiement_global %}
+      <img src="{{ m.logo.url }}" alt="{{ m.nom }}" title="{{ m.nom }}" class="payment-logo" aria-hidden="true">
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 <footer class="bg-dark text-light mt-5 py-4">
   <div class="container text-center">
     <p class="mb-1 fw-bold">🥕 9ouffty — Fruits & Légumes frais de Tunisie</p>

@@ -19,18 +19,15 @@
   </div>
 </section>
 
-{% if moyens_paiement %}
-<div class="payment-strip py-3 mb-5">
-  <div class="payment-track">
-    {% for m in moyens_paiement %}
-      <img src="{{ m.logo.url }}" alt="{{ m.nom }}" title="{{ m.nom }}" class="payment-logo">
-    {% endfor %}
-    {% for m in moyens_paiement %}
-      <img src="{{ m.logo.url }}" alt="{{ m.nom }}" title="{{ m.nom }}" class="payment-logo" aria-hidden="true">
+<div class="welcome-ticker py-2 mb-5">
+  <div class="ticker-track">
+    {% for i in "12"|make_list %}
+      <span class="ticker-item">🎉 Bienvenue cher client — Fraîcheur garantie chaque jour</span>
+      <span class="ticker-item">🚚 Livraison rapide dans tous les gouvernorats de Tunisie</span>
+      <span class="ticker-item">🥕 Directement des producteurs locaux vers votre table</span>
     {% endfor %}
   </div>
 </div>
-{% endif %}
 
 <div class="container">
   <h2 class="h4 fw-bold mb-3">Nos catégories</h2>
