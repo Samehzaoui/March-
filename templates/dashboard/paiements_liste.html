@@ -4,7 +4,7 @@
 {% block dashboard_content %}
 
 <div class="d-flex justify-content-end mb-3">
-  <a href="{% url 'dashboard:paiement_ajouter' %}" class="btn btn-success btn-sm">+ Ajouter un moyen de paiement</a>
+  <a href="{% url 'dashboard:paiement_ajouter' %}" class="btn btn-brand btn-sm">+ Ajouter un moyen de paiement</a>
 </div>
 
 <div class="card stat-card p-3">
@@ -17,7 +17,7 @@
           <td><img src="{{ m.logo.url }}" style="height:32px;object-fit:contain;"></td>
           <td>{{ m.nom }}</td>
           <td>{{ m.ordre }}</td>
-          <td>{% if m.actif %}<span class="badge bg-success">Oui</span>{% else %}<span class="badge bg-secondary">Non</span>{% endif %}</td>
+          <td>{% if m.actif %}<span class="badge badge-brand">Oui</span>{% else %}<span class="badge bg-secondary">Non</span>{% endif %}</td>
           <td>
             <a href="{% url 'dashboard:paiement_modifier' m.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
             <a href="{% url 'dashboard:paiement_supprimer' m.pk %}" class="btn btn-sm btn-outline-danger">Supprimer</a>

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container py-5 text-center">
   <div class="mb-3" style="font-size:4rem;">✅</div>
-  <h1 class="h3 fw-bold text-success">Merci {{ commande.nom_client }} !</h1>
+  <h1 class="h3 fw-bold text-brand">Merci {{ commande.nom_client }} !</h1>
   <p class="lead">Votre commande <strong>#{{ commande.id }}</strong> a été enregistrée avec succès.</p>
   <p class="text-muted">Nous vous contacterons au {{ commande.telephone }} pour confirmer la livraison à {{ commande.gouvernorat }}.</p>
 
@@ -25,6 +25,6 @@
     </div>
   </div>
 
-  <a href="{% url 'boutique:accueil' %}" class="btn btn-success btn-lg mt-4">Retour à l'accueil</a>
+  <a href="{% url 'boutique:accueil' %}" class="btn btn-brand btn-lg mt-4">Retour à l'accueil</a>
 </div>
 {% endblock %}

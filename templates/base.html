@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}9ouffty{% endblock %} - Fruits & Légumes en ligne</title>
+<title>{% block title %}9offty{% endblock %} - Fruits & Légumes en ligne</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -13,7 +13,9 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-bold text-success" href="{% url 'boutique:accueil' %}">🥕 9ouffty</a>
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'boutique:accueil' %}">
+      <img src="{% static 'img/logo.png' %}" alt="9offty">
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -37,7 +39,23 @@
       <form class="d-flex me-3" role="search" method="get" action="{% url 'boutique:liste_produits' %}">
         <input class="form-control form-control-sm" type="search" name="q" placeholder="Rechercher un produit...">
       </form>
-      <a href="{% url 'boutique:panier' %}" class="btn btn-outline-success btn-sm position-relative">
+      {% if user.is_authenticated %}
+      <div class="dropdown me-2">
+        <a class="btn btn-sm btn-brand-outline dropdown-toggle" href="#" data-bs-toggle="dropdown">👤 Mon compte</a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="{% url 'comptes:mes_commandes' %}">📦 Mes commandes</a></li>
+          <li>
+            <form method="post" action="{% url 'comptes:deconnexion' %}">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item">🚪 Déconnexion</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+      {% else %}
+      <a href="{% url 'comptes:connexion' %}" class="btn btn-sm btn-brand-outline me-2">👤 Connexion</a>
+      {% endif %}
+      <a href="{% url 'boutique:panier' %}" class="btn btn-panier btn-sm position-relative">
         🛒 Panier
         {% if request.session.panier %}
           <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
@@ -60,9 +78,27 @@
 </div>
 {% endif %}
 
+{% if commandes_a_valider %}
+<div class="container mt-3">
+  <div class="alert alert-warning mb-0">
+    🔔 {% for c in commandes_a_valider %}Votre commande #{{ c.id }} est confirmée : <a href="{% url 'comptes:valider_commande' c.id %}" class="alert-link">saisissez le code reçu par SMS pour la valider</a>.{% if not forloop.last %} {% endif %}{% endfor %}
+  </div>
+</div>
+{% endif %}
+
 <main>
 {% block content %}{% endblock %}
 </main>
+
+<footer class="site-footer mt-5 py-4">
+  <div class="container text-center">
+    <img src="{% static 'img/logo.png' %}" alt="9offty" style="height:34px;" class="mb-2">
+    <p class="small mb-0" style="color:#a9c6d8;">Livraison dans tous les gouvernorats · Paiement à la livraison</p>
+    <p class="small mt-2 mb-0"><a href="{% url 'dashboard:login' %}">Espace administrateur</a></p>
+    <hr style="border-color: rgba(255,255,255,.15); max-width:400px; margin-left:auto; margin-right:auto;">
+    <p class="small mb-0" style="color:#a9c6d8;">© {% now "Y" %} 9offty — Développé par Sameh Ezzaoui</p>
+  </div>
+</footer>
 
 {% if moyens_paiement_global %}
 <div class="payment-strip py-3">
@@ -76,16 +112,6 @@
   </div>
 </div>
 {% endif %}
-
-<footer class="bg-dark text-light mt-5 py-4">
-  <div class="container text-center">
-    <p class="mb-1 fw-bold">🥕 9ouffty — Fruits & Légumes frais de Tunisie</p>
-    <p class="small text-secondary mb-0">Livraison dans tous les gouvernorats · Paiement à la livraison</p>
-    <p class="small text-secondary mt-2 mb-0"><a href="{% url 'dashboard:login' %}" class="text-secondary">Espace administrateur</a></p>
-    <hr class="border-secondary my-3" style="max-width:400px; margin-left:auto; margin-right:auto;">
-    <p class="small text-secondary mb-0">© {% now "Y" %} 9ouffty — Développé par Sameh Ezzaoui</p>
-  </div>
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

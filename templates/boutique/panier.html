@@ -6,7 +6,7 @@
 
   {% if panier|length == 0 %}
     <p class="text-muted">Votre panier est vide pour le moment.</p>
-    <a href="{% url 'boutique:liste_produits' %}" class="btn btn-success">Continuer mes achats</a>
+    <a href="{% url 'boutique:liste_produits' %}" class="btn btn-brand">Continuer mes achats</a>
   {% else %}
   <div class="table-responsive">
     <table class="table align-middle bg-white rounded shadow-sm">
@@ -48,8 +48,8 @@
   </div>
 
   <div class="d-flex justify-content-between mt-3">
-    <a href="{% url 'boutique:liste_produits' %}" class="btn btn-outline-success">← Continuer mes achats</a>
-    <a href="{% url 'boutique:commander' %}" class="btn btn-success btn-lg">Passer la commande →</a>
+    <a href="{% url 'boutique:liste_produits' %}" class="btn btn-brand-outline">← Continuer mes achats</a>
+    <a href="{% url 'boutique:commander' %}" class="btn btn-brand btn-lg">Passer la commande →</a>
   </div>
   {% endif %}
 </div>

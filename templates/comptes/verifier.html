@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Code de vérification{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:460px;">
+  <div class="bg-white p-4 rounded-4 shadow-sm">
+    <div class="text-center mb-3">
+      <div style="font-size:2.5rem;">🔐</div>
+      <h1 class="h4 fw-bold mb-1">Entrez votre code</h1>
+      <p class="text-muted small mb-0">Code envoyé par SMS au <strong>{{ telephone_masque }}</strong> (valable 5 minutes).</p>
+    </div>
+    {% if erreur %}<div class="alert alert-danger py-2 small">{{ erreur }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="text" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code"
+             class="form-control form-control-lg text-center mb-3" style="letter-spacing:.5em; font-size:1.6rem;"
+             placeholder="••••••" required autofocus>
+      <button type="submit" class="btn btn-brand w-100 btn-lg">Se connecter</button>
+    </form>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <form method="post" action="{% url 'comptes:renvoyer' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-link btn-sm p-0">Renvoyer le code</button>
+      </form>
+      <a href="{% url 'comptes:connexion' %}" class="small text-muted">Changer de numéro</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

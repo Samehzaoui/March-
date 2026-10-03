@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'boutique',
     'dashboard',
+    'comptes',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +67,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'boutique.context_processors.types_categories',
                 'boutique.context_processors.moyens_paiement_global',
+                'comptes.context_processors.commandes_a_valider',
             ],
         },
     },
@@ -130,6 +132,13 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Envoi de SMS (connexion client + validation de commande)
+# SMS_BACKEND : "console" (affiche le SMS dans le terminal, développement) ou "twilio" (envoi réel)
+SMS_BACKEND = config('SMS_BACKEND', default='console')
+TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', default='')
+TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', default='')
+TWILIO_FROM = config('TWILIO_FROM', default='')
 
 # Authentification - espace administrateur (dashboard)
 LOGIN_URL = 'dashboard:login'

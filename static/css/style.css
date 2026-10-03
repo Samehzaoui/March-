@@ -1,10 +1,116 @@
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f8faf7;
+/* ============================================
+   9offty — Design system (turquoise / marine)
+   ============================================ */
+
+:root {
+    --c-teal: #02b2a2;
+    --c-teal-dark: #018f82;
+    --c-teal-light: #e6faf8;
+    --c-navy: #042e55;
+    --c-navy-light: #0a4878;
+    --c-navy-soft: #0e3a66;
+    --c-bg: #f6fbfa;
+    --c-text: #0d1b2a;
+    --c-muted: #5c7384;
 }
 
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--c-bg);
+    color: var(--c-text);
+}
+
+a {
+    color: var(--c-teal-dark);
+}
+
+a:hover {
+    color: var(--c-navy);
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+    border-bottom: 1px solid rgba(4, 46, 85, .06);
+}
+
+.navbar-brand img {
+    height: 38px;
+    width: auto;
+}
+
+.navbar-brand .brand-text {
+    font-weight: 700;
+    color: var(--c-navy);
+    letter-spacing: -.01em;
+}
+
+.nav-link {
+    color: var(--c-navy);
+    font-weight: 500;
+}
+
+.nav-link:hover,
+.nav-link.active,
+.nav-link:focus {
+    color: var(--c-teal-dark) !important;
+}
+
+.dropdown-item:active,
+.dropdown-item.active {
+    background-color: var(--c-teal);
+}
+
+.dropdown-item:hover {
+    background-color: var(--c-teal-light);
+    color: var(--c-navy);
+}
+
+.form-control:focus {
+    border-color: var(--c-teal);
+    box-shadow: 0 0 0 .2rem rgba(2, 178, 162, .18);
+}
+
+.btn-panier {
+    border: 1.5px solid var(--c-teal);
+    color: var(--c-teal-dark);
+    font-weight: 600;
+    background: transparent;
+    transition: background .18s ease, color .18s ease;
+}
+
+.btn-panier:hover {
+    background: var(--c-teal);
+    color: #fff;
+}
+
+/* ---------- Boutons génériques ---------- */
+.btn-brand {
+    background: var(--c-teal);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+}
+
+.btn-brand:hover {
+    background: var(--c-teal-dark);
+    color: #fff;
+}
+
+.btn-brand-outline {
+    border: 1.5px solid var(--c-navy);
+    color: var(--c-navy);
+    font-weight: 600;
+    background: transparent;
+}
+
+.btn-brand-outline:hover {
+    background: var(--c-navy);
+    color: #fff;
+}
+
+/* ---------- Hero ---------- */
 .hero {
-    background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+    background: linear-gradient(135deg, var(--c-navy) 0%, var(--c-teal) 100%);
     color: white;
     border-radius: 0 0 30px 30px;
 }
@@ -15,7 +121,7 @@ body {
     color: white;
     border-radius: 0 0 30px 30px;
     overflow: hidden;
-    background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+    background: linear-gradient(135deg, var(--c-navy) 0%, var(--c-teal) 100%);
     min-height: 380px;
     display: flex;
     align-items: center;
@@ -42,7 +148,7 @@ body {
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(27,45,30,.65) 0%, rgba(46,125,50,.55) 100%);
+    background: linear-gradient(135deg, rgba(4,46,85,.70) 0%, rgba(2,178,162,.50) 100%);
 }
 
 .hero-content {
@@ -50,11 +156,11 @@ body {
     width: 100%;
 }
 
-/* Barre défilante des moyens de paiement */
+/* ---------- Barre défilante des moyens de paiement ---------- */
 .payment-strip {
     background: #ffffff;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid #eef3f2;
+    border-bottom: 1px solid #eef3f2;
     overflow: hidden;
     white-space: nowrap;
 }
@@ -73,8 +179,22 @@ body {
 .payment-logo {
     height: 34px;
     object-fit: contain;
-    opacity: .85;
-    filter: grayscale(15%);
+    opacity: .7;
+    filter: grayscale(100%);
+    transition: filter .35s ease, opacity .35s ease, transform .35s ease;
+    animation: paymentPulse 4s ease-in-out infinite;
+}
+
+.payment-logo:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+    transform: scale(1.08);
+    animation-play-state: paused;
+}
+
+@keyframes paymentPulse {
+    0%, 100% { opacity: .55; }
+    50%      { opacity: .85; }
 }
 
 @keyframes paymentScroll {
@@ -82,9 +202,9 @@ body {
     100% { transform: translateX(-50%); }
 }
 
-/* Bandeau de bienvenue défilant (news ticker) sur l'accueil */
+/* ---------- Bandeau de bienvenue défilant (news ticker) ---------- */
 .welcome-ticker {
-    background: linear-gradient(90deg, #2e7d32, #43a047);
+    background: linear-gradient(90deg, var(--c-navy), var(--c-teal-dark));
     color: #fff;
     overflow: hidden;
     white-space: nowrap;
@@ -119,27 +239,27 @@ body {
     100% { transform: translateX(-50%); }
 }
 
+/* ---------- Cartes produit ---------- */
 .card-produit {
     border: none;
     border-radius: 14px;
     overflow: hidden;
     transition: transform .2s ease, box-shadow .2s ease;
-    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    box-shadow: 0 2px 10px rgba(4,46,85,.07);
     height: 100%;
 }
 
 .card-produit:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,.12);
+    box-shadow: 0 10px 22px rgba(2,178,162,.18);
 }
 
 .card-produit .img-top {
     height: 170px;
     object-fit: cover;
-    background: #eef4ec;
+    background: var(--c-teal-light);
 }
 
-/* Conteneur de l'image pour positionner le bandeau */
 .produit-image-wrap {
     position: relative;
     overflow: hidden;
@@ -169,18 +289,17 @@ body {
 }
 
 .badge-ruban.nouveau {
-    background: linear-gradient(135deg, #43a047, #2e7d32);
+    background: linear-gradient(135deg, var(--c-teal), var(--c-teal-dark));
 }
 
-/* Voile grisé sur la photo quand le produit est en rupture */
 .produit-image-wrap.indisponible .img-top {
     filter: grayscale(60%);
     opacity: .6;
 }
 
 .badge-bio {
-    background-color: #a5d6a7;
-    color: #1b5e20;
+    background-color: var(--c-teal-light);
+    color: var(--c-teal-dark);
 }
 
 .badge-disponible {
@@ -190,28 +309,39 @@ body {
 
 .prix-tag {
     font-weight: 700;
-    color: #2e7d32;
+    color: var(--c-navy);
     font-size: 1.15rem;
 }
 
 .categorie-pill {
     border-radius: 999px;
     padding: .5rem 1.1rem;
+    border: 1.5px solid var(--c-teal);
+    color: var(--c-teal-dark);
+    background: var(--c-teal-light);
 }
 
+.categorie-pill.active,
+.categorie-pill:hover {
+    background: var(--c-teal);
+    color: #fff;
+}
+
+/* ---------- Dashboard ---------- */
 .sidebar-dashboard {
     min-height: 100vh;
-    background: #1b2d1e;
-    color: #e6ece7;
+    background: var(--c-navy);
+    color: #dfe9f0;
 }
 
 .sidebar-dashboard a {
-    color: #cfe0d2;
+    color: #c3d4e0;
     text-decoration: none;
 }
 
-.sidebar-dashboard a.active, .sidebar-dashboard a:hover {
-    background: #2e7d32;
+.sidebar-dashboard a.active,
+.sidebar-dashboard a:hover {
+    background: var(--c-teal);
     color: #fff;
     border-radius: 8px;
 }
@@ -219,5 +349,34 @@ body {
 .stat-card {
     border-radius: 16px;
     border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    box-shadow: 0 2px 10px rgba(4,46,85,.08);
+    border-top: 3px solid var(--c-teal);
+}
+
+/* ---------- Utilitaires de marque ---------- */
+.text-brand {
+    color: var(--c-teal-dark) !important;
+}
+
+.text-brand-navy {
+    color: var(--c-navy) !important;
+}
+
+.badge-brand {
+    background-color: var(--c-teal) !important;
+    color: #fff !important;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+    background: var(--c-navy);
+    color: #cfe3ef;
+}
+
+.site-footer a {
+    color: #a9c6d8;
+}
+
+.site-footer a:hover {
+    color: var(--c-teal);
 }

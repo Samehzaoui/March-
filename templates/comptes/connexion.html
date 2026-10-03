@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:460px;">
+  <div class="bg-white p-4 rounded-4 shadow-sm">
+    <div class="text-center mb-3">
+      <div style="font-size:2.5rem;">📱</div>
+      <h1 class="h4 fw-bold mb-1">Connexion par SMS</h1>
+      <p class="text-muted small mb-0">Entrez votre numéro de mobile : nous vous envoyons un code à 6 chiffres. Aucun mot de passe à retenir.</p>
+    </div>
+    {% if erreur %}<div class="alert alert-danger py-2 small">{{ erreur }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <label class="form-label fw-semibold">Numéro de mobile</label>
+      <div class="input-group mb-3">
+        <span class="input-group-text">🇹🇳 +216</span>
+        <input type="tel" name="telephone" class="form-control" inputmode="numeric" autocomplete="tel-national"
+               placeholder="22 123 456" value="{{ telephone_saisi }}" required autofocus>
+      </div>
+      <button type="submit" class="btn btn-brand w-100 btn-lg">Recevoir mon code</button>
+    </form>
+    <p class="small text-muted text-center mt-3 mb-0">Un SMS de vérification sera envoyé à ce numéro.</p>
+  </div>
+</div>
+{% endblock %}

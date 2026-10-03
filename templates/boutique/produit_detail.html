@@ -40,11 +40,11 @@
       {% endif %}
 
       {% if produit.en_stock %}
-        <p class="text-success small">✔ En stock ({{ produit.stock }} disponible{{ produit.stock|pluralize }})</p>
+        <p class="text-brand small">✔ En stock ({{ produit.stock }} disponible{{ produit.stock|pluralize }})</p>
         <form method="post" action="{% url 'boutique:panier_ajouter' produit.id %}" class="d-flex gap-2 mt-3" style="max-width:300px;">
           {% csrf_token %}
           <input type="number" name="quantite" value="1" min="1" max="{{ produit.stock }}" class="form-control">
-          <button type="submit" class="btn btn-success text-nowrap px-4">Ajouter</button>
+          <button type="submit" class="btn btn-brand text-nowrap px-4">Ajouter</button>
         </form>
       {% else %}
         <p class="text-danger">Rupture de stock</p>

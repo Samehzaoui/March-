@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.core.validators import MinValueValidator
@@ -104,6 +105,10 @@ class Commande(models.Model):
     date_commande = models.DateTimeField(auto_now_add=True)
     date_maj = models.DateTimeField(auto_now=True)
     note = models.TextField(blank=True, help_text="Note du client ou consigne de livraison")
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name='commandes')
+    validee_par_client = models.BooleanField(default=False, help_text="Le client a saisi le code reçu par SMS")
+    date_validation_client = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Commande"

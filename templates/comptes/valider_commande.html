@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Valider ma commande #{{ commande.id }}{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:480px;">
+  <div class="bg-white p-4 rounded-4 shadow-sm">
+    <div class="text-center mb-3">
+      <div style="font-size:2.5rem;">✅</div>
+      <h1 class="h4 fw-bold mb-1">Valider la commande #{{ commande.id }}</h1>
+      <p class="text-muted small mb-0">Votre commande de <strong>{{ commande.total }} DT</strong> est confirmée. Saisissez le code reçu par SMS pour la valider.</p>
+    </div>
+    {% if erreur %}<div class="alert alert-danger py-2 small">{{ erreur }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="text" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code"
+             class="form-control form-control-lg text-center mb-3" style="letter-spacing:.5em; font-size:1.6rem;"
+             placeholder="••••••" required autofocus>
+      <button type="submit" class="btn btn-brand w-100 btn-lg">Valider ma commande</button>
+    </form>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <form method="post" action="{% url 'comptes:renvoyer_code_commande' commande.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-link btn-sm p-0">Renvoyer le code</button>
+      </form>
+      <a href="{% url 'comptes:mes_commandes' %}" class="small text-muted">Mes commandes</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
