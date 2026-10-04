@@ -1,0 +1,30 @@
+{% extends "allauth/layouts/base.html" %}
+{% block head_title %}Connexion par email{% endblock %}
+{% block content %}
+<h1 class="h4 fw-bold text-center mb-3" style="color:var(--c-navy);">Connexion par email</h1>
+<form method="post" action="{% url 'account_login' %}">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert alert-danger py-2 small">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  <div class="mb-3">
+    <label for="id_login">Adresse email</label>
+    <input type="email" name="login" id="id_login" class="form-control" value="{{ form.login.value|default:'' }}" required>
+    {{ form.login.errors }}
+  </div>
+  <div class="mb-2">
+    <label for="id_password">Mot de passe</label>
+    <input type="password" name="password" id="id_password" class="form-control" required>
+    {{ form.password.errors }}
+  </div>
+  <div class="d-flex justify-content-between align-items-center mb-3 small">
+    <label class="mb-0 fw-normal"><input type="checkbox" name="remember"> Rester connecté</label>
+    <a href="{% url 'account_reset_password' %}">Mot de passe oublié ?</a>
+  </div>
+  {{ redirect_field }}
+  <button type="submit" class="btn btn-brand w-100 btn-lg">Se connecter</button>
+</form>
+{% include 'comptes/_social_buttons.html' %}
+<p class="text-center small mt-3 mb-0">
+  <a href="{% url 'comptes:connexion' %}#inscription">Créer un compte</a> ·
+  <a href="{% url 'comptes:connexion' %}#sms">Connexion par SMS</a>
+</p>
+{% endblock %}

@@ -110,7 +110,7 @@ def verifier_code(telephone, objet, code, commande=None):
 def envoyer_code_connexion(telephone):
     return envoyer_code(
         telephone, CodeSMS.OBJET_CONNEXION, TTL_CONNEXION_MIN,
-        lambda code: f"9ouffty: code de connexion {code} (valable {TTL_CONNEXION_MIN} min). Ne le communiquez a personne.",
+        lambda code: f"9offty: code de connexion {code} (valable {TTL_CONNEXION_MIN} min). Ne le communiquez a personne.",
     )
 
 
@@ -126,7 +126,7 @@ def envoyer_code_commande(commande):
         return Resultat(False, "Le numéro de téléphone de cette commande est invalide.")
     return envoyer_code(
         telephone, CodeSMS.OBJET_COMMANDE, TTL_COMMANDE_MIN,
-        lambda code: f"9ouffty: commande #{commande.pk} confirmee. Code de validation: {code} (valable 24h). Saisissez-le sur le site.",
+        lambda code: f"9offty: commande #{commande.pk} confirmee. Code de validation: {code} (valable 24h). Saisissez-le sur le site.",
         commande=commande,
     )
 

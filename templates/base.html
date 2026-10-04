@@ -87,7 +87,7 @@
 {% endif %}
 
 <main>
-{% block content %}{% endblock %}
+{% block main_wrapper %}{% block content %}{% endblock %}{% endblock %}
 </main>
 
 <footer class="site-footer mt-5 py-4">

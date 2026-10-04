@@ -1,0 +1,30 @@
+{% extends "allauth/layouts/base.html" %}
+{% block head_title %}Créer un compte{% endblock %}
+{% block content %}
+<h1 class="h4 fw-bold text-center mb-3" style="color:var(--c-navy);">Créer un compte</h1>
+<form method="post" action="{% url 'account_signup' %}">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert alert-danger py-2 small">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  <div class="mb-3">
+    <label for="id_email">Adresse email</label>
+    <input type="email" name="email" id="id_email" class="form-control" value="{{ form.email.value|default:'' }}" required>
+    {{ form.email.errors }}
+  </div>
+  <div class="mb-3">
+    <label for="id_password1">Mot de passe</label>
+    <input type="password" name="password1" id="id_password1" class="form-control" required>
+    {{ form.password1.errors }}
+  </div>
+  <div class="mb-3">
+    <label for="id_password2">Confirmer le mot de passe</label>
+    <input type="password" name="password2" id="id_password2" class="form-control" required>
+    {{ form.password2.errors }}
+  </div>
+  {{ redirect_field }}
+  <button type="submit" class="btn btn-brand w-100 btn-lg">Créer mon compte</button>
+</form>
+{% include 'comptes/_social_buttons.html' %}
+<p class="text-center small mt-3 mb-0">
+  Déjà inscrit ? <a href="{% url 'comptes:connexion' %}#email">Se connecter</a>
+</p>
+{% endblock %}

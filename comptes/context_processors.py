@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from boutique.models import Commande
 
 
@@ -8,3 +10,15 @@ def commandes_a_valider(request):
         return {}
     a_valider = Commande.objects.filter(client=user, statut='confirmee', validee_par_client=False)
     return {'commandes_a_valider': list(a_valider.only('id')[:5])}
+
+
+def oauth_disponibles(request):
+    """Indique quels boutons de connexion sociale sont réellement configurés (clés présentes dans .env)."""
+    def actif(provider):
+        apps = settings.SOCIALACCOUNT_PROVIDERS.get(provider, {}).get('APPS', [])
+        return any(a.get('client_id') and a.get('secret') for a in apps)
+    return {
+        'oauth_google': actif('google'),
+        'oauth_facebook': actif('facebook'),
+        'oauth_apple': actif('apple'),
+    }

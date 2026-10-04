@@ -38,6 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.apple',
     'boutique',
     'dashboard',
     'comptes',
@@ -51,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'marche_tn.urls'
@@ -68,6 +76,7 @@ TEMPLATES = [
                 'boutique.context_processors.types_categories',
                 'boutique.context_processors.moyens_paiement_global',
                 'comptes.context_processors.commandes_a_valider',
+                'comptes.context_processors.oauth_disponibles',
             ],
         },
     },
@@ -139,6 +148,65 @@ SMS_BACKEND = config('SMS_BACKEND', default='console')
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', default='')
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', default='')
 TWILIO_FROM = config('TWILIO_FROM', default='')
+
+
+# ---------------------------------------------------------------
+# Comptes clients : inscription email + connexion Google / Facebook / Apple
+# (en plus de la connexion par SMS gérée par l'app "comptes")
+# ---------------------------------------------------------------
+SITE_ID = 1
+SITE_DOMAIN = config('SITE_DOMAIN', default='127.0.0.1:8000')   # en production : votre vrai nom de domaine
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+ACCOUNT_ADAPTER = 'comptes.adapters.AccountAdapter'
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = config('ACCOUNT_EMAIL_VERIFICATION', default='optional')
+ACCOUNT_LOGOUT_ON_GET = False
+ACCOUNT_LOGIN_BY_CODE_ENABLED = False
+
+SOCIALACCOUNT_LOGIN_ON_GET = True      # clic direct sur le bouton, sans page de confirmation
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
+
+# Emails (vérification, mot de passe oublié) : affichés dans le terminal en développement
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+
+# Clés OAuth : à renseigner dans le fichier .env (voir .env.example)
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APPS': [{
+            'client_id': config('GOOGLE_CLIENT_ID', default=''),
+            'secret': config('GOOGLE_CLIENT_SECRET', default=''),
+            'key': '',
+        }],
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    },
+    'facebook': {
+        'APPS': [{
+            'client_id': config('FACEBOOK_APP_ID', default=''),
+            'secret': config('FACEBOOK_APP_SECRET', default=''),
+            'key': '',
+        }],
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+    },
+    'apple': {
+        'APPS': [{
+            'client_id': config('APPLE_CLIENT_ID', default=''),       # Services ID
+            'secret': config('APPLE_KEY_ID', default=''),             # Key ID
+            'key': config('APPLE_TEAM_ID', default=''),               # Team ID / App ID Prefix
+            'settings': {
+                'certificate_key': config('APPLE_PRIVATE_KEY', default='').replace('\\n', '\n'),
+            },
+        }],
+    },
+}
 
 # Authentification - espace administrateur (dashboard)
 LOGIN_URL = 'dashboard:login'

@@ -1,26 +1,103 @@
 {% extends 'base.html' %}
-{% block title %}Connexion{% endblock %}
-{% block content %}
-<div class="container py-5" style="max-width:460px;">
-  <div class="bg-white p-4 rounded-4 shadow-sm">
-    <div class="text-center mb-3">
-      <div style="font-size:2.5rem;">📱</div>
-      <h1 class="h4 fw-bold mb-1">Connexion par SMS</h1>
-      <p class="text-muted small mb-0">Entrez votre numéro de mobile : nous vous envoyons un code à 6 chiffres. Aucun mot de passe à retenir.</p>
+{% load static %}
+{% block title %}Connexion / Inscription{% endblock %}
+{% block main_wrapper %}
+<div class="auth-page">
+  <span class="auth-blob b1"></span><span class="auth-blob b2"></span><span class="auth-blob b3"></span>
+  <div class="auth-card">
+    <div class="auth-logo"><img src="{% static 'img/logo.png' %}" alt="9offty"></div>
+
+    <div class="text-center pt-3">
+      <h1 class="h4 fw-bold mb-1" style="color:var(--c-navy);">Bienvenue chez 9offty</h1>
+      <p class="text-muted small mb-0">Connectez-vous ou créez votre compte en quelques secondes.</p>
     </div>
-    {% if erreur %}<div class="alert alert-danger py-2 small">{{ erreur }}</div>{% endif %}
-    <form method="post">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ next }}">
-      <label class="form-label fw-semibold">Numéro de mobile</label>
-      <div class="input-group mb-3">
-        <span class="input-group-text">🇹🇳 +216</span>
-        <input type="tel" name="telephone" class="form-control" inputmode="numeric" autocomplete="tel-national"
-               placeholder="22 123 456" value="{{ telephone_saisi }}" required autofocus>
-      </div>
-      <button type="submit" class="btn btn-brand w-100 btn-lg">Recevoir mon code</button>
-    </form>
-    <p class="small text-muted text-center mt-3 mb-0">Un SMS de vérification sera envoyé à ce numéro.</p>
+
+    <div class="auth-tabs" role="tablist">
+      <button type="button" class="auth-tab" data-tab="sms">📱 SMS</button>
+      <button type="button" class="auth-tab" data-tab="email">✉️ Email</button>
+      <button type="button" class="auth-tab" data-tab="inscription">✨ Inscription</button>
+    </div>
+
+    <!-- Panneau SMS -->
+    <div class="auth-panel" id="panel-sms">
+      {% if erreur %}<div class="alert alert-danger py-2 small">{{ erreur }}</div>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <label class="form-label">Numéro de mobile</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text" style="border-radius:12px 0 0 12px;">🇹🇳 +216</span>
+          <input type="tel" name="telephone" class="form-control" inputmode="numeric" autocomplete="tel-national"
+                 placeholder="22 123 456" value="{{ telephone_saisi }}" required>
+        </div>
+        <button type="submit" class="btn btn-brand w-100 btn-lg">Recevoir mon code</button>
+        <p class="small text-muted text-center mt-2 mb-0">Un code à 6 chiffres vous est envoyé par SMS. Aucun mot de passe à retenir.</p>
+      </form>
+    </div>
+
+    <!-- Panneau Email : connexion -->
+    <div class="auth-panel" id="panel-email">
+      <form method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        <div class="mb-3">
+          <label for="id_login">Adresse email</label>
+          <input type="email" name="login" id="id_login" class="form-control" placeholder="vous@exemple.com" autocomplete="email" required>
+        </div>
+        <div class="mb-2">
+          <label for="id_password">Mot de passe</label>
+          <input type="password" name="password" id="id_password" class="form-control" autocomplete="current-password" required>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3 small">
+          <label class="mb-0 fw-normal"><input type="checkbox" name="remember"> Rester connecté</label>
+          <a href="{% url 'account_reset_password' %}">Mot de passe oublié ?</a>
+        </div>
+        <button type="submit" class="btn btn-brand w-100 btn-lg">Se connecter</button>
+      </form>
+    </div>
+
+    <!-- Panneau Inscription -->
+    <div class="auth-panel" id="panel-inscription">
+      <form method="post" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        <div class="mb-3">
+          <label for="id_email">Adresse email</label>
+          <input type="email" name="email" id="id_email" class="form-control" placeholder="vous@exemple.com" autocomplete="email" required>
+        </div>
+        <div class="mb-3">
+          <label for="id_password1">Mot de passe</label>
+          <input type="password" name="password1" id="id_password1" class="form-control" autocomplete="new-password" required>
+          <div class="form-text">8 caractères minimum, pas uniquement des chiffres.</div>
+        </div>
+        <div class="mb-3">
+          <label for="id_password2">Confirmer le mot de passe</label>
+          <input type="password" name="password2" id="id_password2" class="form-control" autocomplete="new-password" required>
+        </div>
+        <button type="submit" class="btn btn-brand w-100 btn-lg">Créer mon compte</button>
+      </form>
+    </div>
+
+    {% include 'comptes/_social_buttons.html' %}
+
+    <p class="text-center small mt-3 mb-0"><a href="{% url 'boutique:accueil' %}">← Retour à la boutique</a></p>
   </div>
 </div>
+
+<script>
+(function () {
+  var tabs = document.querySelectorAll('.auth-tab');
+  var panels = document.querySelectorAll('.auth-panel');
+  function show(name) {
+    if (!document.getElementById('panel-' + name)) name = 'sms';
+    tabs.forEach(function (t) { t.classList.toggle('active', t.dataset.tab === name); });
+    panels.forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + name); });
+    if (history.replaceState) history.replaceState(null, '', '#' + name);
+  }
+  tabs.forEach(function (t) { t.addEventListener('click', function () { show(t.dataset.tab); }); });
+  var initial = (location.hash || '').replace('#', '');
+  {% if erreur %}initial = 'sms';{% endif %}
+  show(initial || 'sms');
+})();
+</script>
 {% endblock %}

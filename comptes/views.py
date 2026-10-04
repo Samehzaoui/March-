@@ -77,7 +77,7 @@ def verifier(request):
         if ok:
             user = _obtenir_ou_creer_client(telephone)
             if not user.is_active:
-                erreur = "Ce compte est désactivé. Contactez 9ouffty."
+                erreur = "Ce compte est désactivé. Contactez 9offty."
             else:
                 suivant = _url_sure(request, request.session.get(SESSION_NEXT))
                 panier = request.session.get('panier')      # conservé même si une autre session était ouverte
@@ -86,7 +86,7 @@ def verifier(request):
                     request.session['panier'] = panier
                 request.session.pop(SESSION_TEL, None)
                 request.session.pop(SESSION_NEXT, None)
-                messages.success(request, "Connexion réussie. Bienvenue chez 9ouffty !")
+                messages.success(request, "Connexion réussie. Bienvenue chez 9offty !")
                 return redirect(suivant or 'boutique:accueil')
     return render(request, 'comptes/verifier.html', {
         'telephone_masque': _masquer(telephone), 'erreur': erreur,
@@ -126,7 +126,7 @@ def valider_commande(request, commande_id):
         messages.info(request, "Cette commande est déjà validée.")
         return redirect('comptes:mes_commandes')
     if commande.statut != 'confirmee':
-        messages.warning(request, "Cette commande n'a pas encore été confirmée par 9ouffty. Vous recevrez un SMS avec le code dès qu'elle le sera.")
+        messages.warning(request, "Cette commande n'a pas encore été confirmée par 9offty. Vous recevrez un SMS avec le code dès qu'elle le sera.")
         return redirect('comptes:mes_commandes')
 
     erreur = None
