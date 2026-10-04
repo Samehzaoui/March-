@@ -291,3 +291,175 @@ def commande_detail(request, pk):
             messages.success(request, "Statut de la commande mis à jour.")
             return redirect('dashboard:commande_detail', pk=pk)
     return render(request, 'dashboard/commande_detail.html', {'commande': commande})
+
+
+# ---------- Registre des clients ----------
+
+import csv
+from decimal import Decimal
+
+from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
+from django.db.models import DecimalField, ExpressionWrapper, F
+from django.http import HttpResponse
+from django.utils import timezone
+from django.views.decorators.http import require_POST
+
+_Utilisateur = get_user_model()
+
+METHODES = [
+    ('sms', '📱 SMS'),
+    ('email', '✉️ Email'),
+    ('google', 'Google'),
+    ('facebook', 'Facebook'),
+    ('apple', 'Apple'),
+]
+_STATUTS_COMPTES = ['en_attente', 'confirmee', 'en_livraison', 'livree']  # annulées exclues du total dépensé
+
+
+def _clients_queryset():
+    """Clients = comptes non staff, avec nb de commandes et total dépensé (hors annulées)."""
+    montant = ExpressionWrapper(
+        F('commandes__lignes__prix_unitaire') * F('commandes__lignes__quantite'),
+        output_field=DecimalField(max_digits=14, decimal_places=3),
+    )
+    return (_Utilisateur.objects.filter(is_staff=False, is_superuser=False)
+            .select_related('profil')
+            .prefetch_related('socialaccount_set')
+            .annotate(nb_commandes=Count('commandes', distinct=True),
+                      total_depense=Sum(montant, filter=Q(commandes__statut__in=_STATUTS_COMPTES))))
+
+
+def _methodes_client(u):
+    codes = []
+    if hasattr(u, 'profil'):
+        codes.append('sms')
+    for sa in u.socialaccount_set.all():
+        if sa.provider in ('google', 'facebook', 'apple') and sa.provider not in codes:
+            codes.append(sa.provider)
+    if not codes and u.email:
+        codes.append('email')
+    libelles = dict(METHODES)
+    return [(c, libelles.get(c, c)) for c in codes] or [('autre', 'Autre')]
+
+
+def _telephone_client(u):
+    if hasattr(u, 'profil'):
+        return u.profil.telephone
+    derniere = u.commandes.exclude(telephone='').order_by('-date_commande').first()
+    return derniere.telephone if derniere else ''
+
+
+def _nom_client(u):
+    nom = f"{u.first_name} {u.last_name}".strip()
+    if nom:
+        return nom
+    derniere = u.commandes.exclude(nom_client='').order_by('-date_commande').first()
+    if derniere:
+        return derniere.nom_client
+    return u.email.split('@')[0] if u.email else '—'
+
+
+def _filtrer_clients(request):
+    clients = _clients_queryset()
+    q = request.GET.get('q', '').strip()
+    methode = request.GET.get('methode', '')
+    if q:
+        clients = clients.filter(
+            Q(email__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q)
+            | Q(profil__telephone__icontains=q) | Q(commandes__nom_client__icontains=q)
+            | Q(commandes__telephone__icontains=q)
+        ).distinct()
+    if methode == 'sms':
+        clients = clients.filter(profil__isnull=False)
+    elif methode in ('google', 'facebook', 'apple'):
+        clients = clients.filter(socialaccount__provider=methode).distinct()
+    elif methode == 'email':
+        clients = clients.filter(profil__isnull=True, socialaccount__isnull=True).exclude(email='')
+    return clients.order_by('-date_joined'), q, methode
+
+
+def _preparer(u):
+    u.methodes = _methodes_client(u)
+    u.tel = _telephone_client(u)
+    u.nom_affiche = _nom_client(u)
+    return u
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def clients_liste(request):
+    clients, q, methode = _filtrer_clients(request)
+    page = Paginator(clients, 25).get_page(request.GET.get('page'))
+    for u in page:
+        _preparer(u)
+
+    tous = _Utilisateur.objects.filter(is_staff=False, is_superuser=False)
+    debut_mois = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    stats = {
+        'total': tous.count(),
+        'ce_mois': tous.filter(date_joined__gte=debut_mois).count(),
+        'avec_commande': tous.filter(commandes__isnull=False).distinct().count(),
+        'sociaux': tous.filter(socialaccount__isnull=False).distinct().count(),
+    }
+    return render(request, 'dashboard/clients_liste.html', {
+        'page': page, 'q': q, 'methode_active': methode, 'methodes': METHODES, 'stats': stats,
+    })
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def client_detail(request, pk):
+    client = get_object_or_404(_clients_queryset(), pk=pk)
+    _preparer(client)
+    commandes = client.commandes.prefetch_related('lignes').order_by('-date_commande')
+    return render(request, 'dashboard/client_detail.html', {'client': client, 'commandes': commandes})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+@require_POST
+def client_statut(request, pk):
+    """Active / désactive un compte client (il ne pourra plus se connecter)."""
+    client = get_object_or_404(_Utilisateur, pk=pk, is_staff=False, is_superuser=False)
+    client.is_active = not client.is_active
+    client.save(update_fields=['is_active'])
+    messages.success(request, f"Compte {'réactivé' if client.is_active else 'désactivé'}.")
+    return redirect('dashboard:client_detail', pk=pk)
+
+
+def _cellule_csv(valeur):
+    """Neutralise les formules Excel (=, +, -, @) dans les données saisies par les clients."""
+    texte = '' if valeur is None else str(valeur)
+    return "'" + texte if texte[:1] in ('=', '+', '-', '@') else texte
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def clients_export(request):
+    clients, _, _ = _filtrer_clients(request)
+    reponse = HttpResponse(content_type='text/csv; charset=utf-8')
+    reponse['Content-Disposition'] = f'attachment; filename="clients_{timezone.now():%Y%m%d}.csv"'
+    reponse.write('\ufeff')  # BOM pour qu'Excel lise bien les accents
+    w = csv.writer(reponse, delimiter=';')
+    w.writerow(['Nom', 'Email', 'Téléphone', 'Inscription via', 'Date inscription',
+                'Commandes', 'Total dépensé (DT)', 'Actif'])
+    for u in clients:
+        _preparer(u)
+        w.writerow([_cellule_csv(u.nom_affiche), _cellule_csv(u.email), _cellule_csv(u.tel),
+                    ', '.join(l for _, l in u.methodes), f"{u.date_joined:%d/%m/%Y}",
+                    u.nb_commandes, f"{(u.total_depense or Decimal('0')):.3f}",
+                    'oui' if u.is_active else 'non'])
+    return reponse
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def client_ajouter(request):
+    from .forms import ClientCreationForm
+    form = ClientCreationForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        client = form.save()
+        messages.success(request, "Client créé avec succès.")
+        return redirect('dashboard:client_detail', pk=client.pk)
+    return render(request, 'dashboard/client_form.html', {'form': form, 'titre': 'Nouveau client'})

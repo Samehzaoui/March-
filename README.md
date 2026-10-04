@@ -1,4 +1,4 @@
-# 🥕 9ouffty — Application Django de vente de fruits, légumes, poissons & viandes en ligne
+# 🥕 9offty — Application Django de vente de fruits, légumes, poissons & viandes en ligne
 
 Application e-commerce Django destinée au marché tunisien, permettant de vendre
 tous types de fruits et légumes en ligne, avec un espace d'administration
@@ -21,7 +21,7 @@ tous types de fruits et légumes en ligne, avec un espace d'administration
 - **Diaporama d'arrière-plan sur l'accueil** : 5-6 images qui changent automatiquement toutes les 12 secondes, gérées depuis le dashboard (`/gestion/slides/`)
 - **Badges "Nouveau" et "Rupture de stock"** en ruban diagonal sur la photo des produits (automatique : "Nouveau" pendant 7 jours après ajout, "Rupture de stock" dès que la quantité = 0)
 - **Menu déroulant dynamique** "Tous les produits" dans la navbar, listant tous les types de catégories existants
-- Copyright en pied de page : © 9ouffty — Développé par Sameh Ezzaoui
+- Copyright en pied de page : © 9offty — Développé par Sameh Ezzaoui
 
 ### Espace administrateur (dashboard)
 - **Page de connexion dédiée** (`/gestion/login/`) avec identifiant + mot de passe,
@@ -35,6 +35,12 @@ tous types de fruits et légumes en ligne, avec un espace d'administration
 - Toutes les pages du dashboard sont protégées : accès refusé et redirection
   vers la page de connexion si l'utilisateur n'est pas connecté ou n'est pas staff
 - L'admin Django natif (`/admin/`) reste également disponible pour une gestion avancée
+
+### Comptes clients (nouveau)
+- **Page unique de connexion / inscription** à onglets animés : SMS, Email, Inscription (`/compte/connexion/`)
+- Inscription et connexion par **email + mot de passe**, mot de passe oublié
+- Connexion **Google / Facebook / Apple** (voir `GUIDE_CONNEXION_SOCIALE.md`)
+- Connexion par **code SMS** conservée
 
 ## Installation
 

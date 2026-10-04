@@ -1,0 +1,63 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Clients{% endblock %}
+{% block header %}👥 Registre des clients{% endblock %}
+{% block dashboard_content %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="card stat-card p-3"><div class="small text-muted">Clients inscrits</div><div class="h3 fw-bold mb-0 text-brand-navy">{{ stats.total }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="card stat-card p-3"><div class="small text-muted">Nouveaux ce mois</div><div class="h3 fw-bold mb-0 text-brand">{{ stats.ce_mois }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="card stat-card p-3"><div class="small text-muted">Ayant commandé</div><div class="h3 fw-bold mb-0 text-brand-navy">{{ stats.avec_commande }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="card stat-card p-3"><div class="small text-muted">Via Google / Facebook / Apple</div><div class="h3 fw-bold mb-0 text-brand-navy">{{ stats.sociaux }}</div></div></div>
+</div>
+
+<div class="card stat-card p-3 mb-3">
+  <form method="get" class="row g-2 align-items-center">
+    <div class="col-md-5">
+      <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher : nom, email, téléphone...">
+    </div>
+    <div class="col-md-3">
+      <select name="methode" class="form-select">
+        <option value="">Toutes les méthodes</option>
+        {% for code, label in methodes %}<option value="{{ code }}" {% if methode_active == code %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4 d-flex gap-2">
+      <button class="btn btn-brand">Filtrer</button>
+      <a href="{% url 'dashboard:clients_liste' %}" class="btn btn-outline-secondary">Réinitialiser</a>
+      <a href="{% url 'dashboard:clients_export' %}?q={{ q|urlencode }}&methode={{ methode_active|urlencode }}" class="btn btn-brand-outline ms-auto">⬇ CSV</a>
+      <a href="{% url 'dashboard:client_ajouter' %}" class="btn btn-brand">➕ Nouveau client</a>
+    </div>
+  </form>
+</div>
+
+<div class="card stat-card p-3">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>Client</th><th>Contact</th><th>Inscrit via</th><th>Commandes</th><th>Dépensé</th><th>Inscription</th><th></th></tr></thead>
+      <tbody>
+        {% for c in page %}
+        <tr {% if not c.is_active %}class="table-secondary"{% endif %}>
+          <td class="fw-semibold">{{ c.nom_affiche }}{% if not c.is_active %} <span class="badge bg-secondary">désactivé</span>{% endif %}</td>
+          <td class="small">{% if c.email %}{{ c.email }}<br>{% endif %}{{ c.tel|default:"" }}</td>
+          <td>{% for code, label in c.methodes %}<span class="badge text-bg-light border">{{ label }}</span> {% endfor %}</td>
+          <td>{{ c.nb_commandes }}</td>
+          <td>{{ c.total_depense|default:0 }} DT</td>
+          <td class="small">{{ c.date_joined|date:"d/m/Y" }}</td>
+          <td><a href="{% url 'dashboard:client_detail' c.pk %}" class="btn btn-sm btn-outline-primary">Fiche</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-muted">Aucun client trouvé.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page.paginator.num_pages > 1 %}
+  <nav class="d-flex justify-content-center gap-2 mt-2">
+    {% if page.has_previous %}<a class="btn btn-sm btn-outline-secondary" href="?q={{ q|urlencode }}&methode={{ methode_active|urlencode }}&page={{ page.previous_page_number }}">← Précédent</a>{% endif %}
+    <span class="small align-self-center text-muted">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a class="btn btn-sm btn-outline-secondary" href="?q={{ q|urlencode }}&methode={{ methode_active|urlencode }}&page={{ page.next_page_number }}">Suivant →</a>{% endif %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

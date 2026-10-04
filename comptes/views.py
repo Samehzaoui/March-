@@ -153,3 +153,12 @@ def renvoyer_code_commande(request, commande_id):
     else:
         messages.warning(request, resultat.message)
     return redirect('comptes:valider_commande', commande_id=commande.pk)
+
+
+def registre(request):
+    """Raccourci /registre/ : ouvre la page de connexion directement sur l'onglet Inscription."""
+    from urllib.parse import urlencode
+    from django.urls import reverse
+    suivant = _url_sure(request, request.GET.get('next'))
+    requete = '?' + urlencode({'next': suivant}) if suivant else ''
+    return redirect(reverse('comptes:connexion') + requete + '#inscription')

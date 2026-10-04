@@ -1,0 +1,68 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}{{ titre }}{% endblock %}
+{% block header %}👤 {{ titre }}{% endblock %}
+{% block dashboard_content %}
+
+<div class="card stat-card p-4" style="max-width:640px;">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger py-2 small">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+
+    <h2 class="h6 fw-bold text-brand-navy mb-3">Identité</h2>
+    <div class="row g-3 mb-2">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+        {{ form.first_name }}
+        {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors|join:" " }}</div>{% endif %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+        {{ form.last_name }}
+        {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors|join:" " }}</div>{% endif %}
+      </div>
+    </div>
+
+    <h2 class="h6 fw-bold text-brand-navy mt-4 mb-1">Contact</h2>
+    <p class="small text-muted">Au moins un des deux : email ou téléphone.</p>
+    <div class="row g-3 mb-2">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+        {{ form.email }}
+        {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors|join:" " }}</div>{% endif %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold" for="{{ form.telephone.id_for_label }}">{{ form.telephone.label }}</label>
+        <div class="input-group">
+          <span class="input-group-text">🇹🇳 +216</span>
+          {{ form.telephone }}
+        </div>
+        {% if form.telephone.errors %}<div class="text-danger small">{{ form.telephone.errors|join:" " }}</div>
+        {% else %}<div class="form-text">{{ form.telephone.help_text }}</div>{% endif %}
+      </div>
+    </div>
+
+    <h2 class="h6 fw-bold text-brand-navy mt-4 mb-1">Accès (facultatif)</h2>
+    <p class="small text-muted">{{ form.password1.help_text }}</p>
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold" for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors|join:" " }}</div>{% endif %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold" for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors|join:" " }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-check form-switch mb-4">
+      {{ form.is_active }}
+      <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+    </div>
+
+    <button type="submit" class="btn btn-brand">Créer le client</button>
+    <a href="{% url 'dashboard:clients_liste' %}" class="btn btn-outline-secondary">Annuler</a>
+  </form>
+</div>
+{% endblock %}

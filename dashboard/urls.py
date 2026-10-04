@@ -18,6 +18,11 @@ urlpatterns = [
     path('categories/<int:pk>/modifier/', views.categorie_modifier, name='categorie_modifier'),
     path('categories/<int:pk>/supprimer/', views.categorie_supprimer, name='categorie_supprimer'),
 
+    path('clients/', views.clients_liste, name='clients_liste'),
+    path('clients/ajouter/', views.client_ajouter, name='client_ajouter'),
+    path('clients/export/', views.clients_export, name='clients_export'),
+    path('clients/<int:pk>/', views.client_detail, name='client_detail'),
+    path('clients/<int:pk>/statut/', views.client_statut, name='client_statut'),
     path('commandes/', views.commandes_liste, name='commandes_liste'),
     path('commandes/<int:pk>/', views.commande_detail, name='commande_detail'),
 
