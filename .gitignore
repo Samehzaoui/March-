@@ -11,3 +11,7 @@ venv/
 staticfiles/
 
 .env
+
+backups/
+
+backups/

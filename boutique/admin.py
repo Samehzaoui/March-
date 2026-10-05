@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Categorie, Produit, Commande, LigneCommande, MoyenPaiement, ImageAccueil
+from .models import (Avis, Categorie, Commande, Coupon, ImageAccueil, LigneCommande, MoyenPaiement,
+                     MouvementPoints, Produit)
 
 
 @admin.register(Categorie)
@@ -25,8 +26,8 @@ class LigneCommandeInline(admin.TabularInline):
 
 @admin.register(Commande)
 class CommandeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nom_client', 'telephone', 'gouvernorat', 'statut', 'date_commande')
-    list_filter = ('statut', 'gouvernorat')
+    list_display = ('id', 'nom_client', 'telephone', 'gouvernorat', 'statut', 'mode_paiement', 'statut_paiement', 'date_commande')
+    list_filter = ('statut', 'mode_paiement', 'statut_paiement', 'gouvernorat')
     search_fields = ('nom_client', 'telephone', 'email')
     inlines = [LigneCommandeInline]
 
@@ -41,3 +42,24 @@ class MoyenPaiementAdmin(admin.ModelAdmin):
 class ImageAccueilAdmin(admin.ModelAdmin):
     list_display = ('titre', 'ordre', 'actif')
     list_editable = ('ordre', 'actif')
+
+
+@admin.register(Coupon)
+class CouponAdmin(admin.ModelAdmin):
+    list_display = ('code', 'type_remise', 'valeur', 'montant_minimum', 'date_fin', 'actif')
+    list_filter = ('type_remise', 'actif')
+    search_fields = ('code', 'description')
+
+
+@admin.register(Avis)
+class AvisAdmin(admin.ModelAdmin):
+    list_display = ('produit', 'client', 'note', 'visible', 'cree_le')
+    list_filter = ('visible', 'note')
+    search_fields = ('produit__nom', 'commentaire')
+
+
+@admin.register(MouvementPoints)
+class MouvementPointsAdmin(admin.ModelAdmin):
+    list_display = ('client', 'points', 'type', 'commande', 'cree_le')
+    list_filter = ('type',)
+    readonly_fields = ('client', 'points', 'type', 'commande', 'cree_le')

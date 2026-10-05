@@ -36,6 +36,13 @@ tous types de fruits et légumes en ligne, avec un espace d'administration
   vers la page de connexion si l'utilisateur n'est pas connecté ou n'est pas staff
 - L'admin Django natif (`/admin/`) reste également disponible pour une gestion avancée
 
+### Avis, promotions, fidélité et paiement en ligne (nouveau)
+- **Avis et notes** sur les produits, réservés aux clients livrés, avec modération (`/gestion/avis/`)
+- **Codes promo** en % ou en montant (`/gestion/coupons/`)
+- **Programme de fidélité** : points gagnés à la livraison, utilisables sur les commandes
+- **Paiement en ligne** Konnect et Flouci, en plus du paiement à la livraison
+- Détails et configuration : `GUIDE_PAIEMENT_FIDELITE.md`
+
 ### Comptes clients (nouveau)
 - **Page unique de connexion / inscription** à onglets animés : SMS, Email, Inscription (`/compte/connexion/`)
 - Inscription et connexion par **email + mot de passe**, mot de passe oublié

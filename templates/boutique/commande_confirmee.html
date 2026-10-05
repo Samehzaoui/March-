@@ -1,11 +1,51 @@
 {% extends 'base.html' %}
-{% block title %}Commande confirmée{% endblock %}
+{% block title %}Commande enregistrée{% endblock %}
 {% block content %}
 <div class="container py-5 text-center">
-  <div class="mb-3" style="font-size:4rem;">✅</div>
-  <h1 class="h3 fw-bold text-brand">Merci {{ commande.nom_client }} !</h1>
+  {% if commande.statut_paiement == 'paye' %}
+    <div class="mb-3" style="font-size:4rem;">✅</div>
+    <h1 class="h3 fw-bold text-brand">Merci {{ commande.nom_client }} ! Paiement reçu.</h1>
+  {% elif commande.statut_paiement == 'en_attente' or commande.statut_paiement == 'echoue' %}
+    <div class="mb-3" style="font-size:4rem;">{% if commande.statut_paiement == 'echoue' %}⚠️{% else %}⏳{% endif %}</div>
+    <h1 class="h3 fw-bold text-brand-navy">Commande #{{ commande.id }} enregistrée : paiement {% if commande.statut_paiement == 'echoue' %}non abouti{% else %}en attente{% endif %}</h1>
+  {% else %}
+    <div class="mb-3" style="font-size:4rem;">✅</div>
+    <h1 class="h3 fw-bold text-brand">Merci {{ commande.nom_client }} !</h1>
+  {% endif %}
+
   <p class="lead">Votre commande <strong>#{{ commande.id }}</strong> a été enregistrée avec succès.</p>
-  <p class="text-muted">Nous vous contacterons au {{ commande.telephone }} pour confirmer la livraison à {{ commande.gouvernorat }}.</p>
+
+  {% if commande.statut_paiement == 'en_attente' or commande.statut_paiement == 'echoue' %}
+    {% if commande.statut != 'annulee' %}
+    <div class="alert alert-warning mx-auto" style="max-width:560px;">
+      Votre commande ne sera traitée qu'une fois le paiement reçu.
+      <div class="d-flex flex-wrap gap-2 justify-content-center mt-3">
+        {% if fournisseurs %}
+        <form method="post" action="{% url 'boutique:paiement_reessayer' commande.id %}" class="d-flex gap-2">
+          {% csrf_token %}
+          {% if fournisseurs|length > 1 %}
+          <select name="fournisseur" class="form-select form-select-sm">
+            {% for code, libelle in fournisseurs %}<option value="{{ code }}" {% if code == commande.mode_paiement %}selected{% endif %}>{{ libelle }}</option>{% endfor %}
+          </select>
+          {% endif %}
+          <button class="btn btn-brand btn-sm text-nowrap">💳 Payer maintenant</button>
+        </form>
+        {% endif %}
+        {% if commande.statut_paiement == 'en_attente' and commande.reference_paiement %}
+        <a href="{% url 'boutique:paiement_retour' commande.id %}" class="btn btn-brand-outline btn-sm">🔄 Vérifier mon paiement</a>
+        {% endif %}
+        <form method="post" action="{% url 'boutique:paiement_livraison' commande.id %}">
+          {% csrf_token %}
+          <button class="btn btn-outline-secondary btn-sm">Payer à la livraison</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  {% elif commande.statut_paiement == 'paye' %}
+    <p class="text-muted">Nous préparons la livraison à {{ commande.gouvernorat }} ; aucun code de validation n'est nécessaire.</p>
+  {% else %}
+    <p class="text-muted">Dès que 9offty aura confirmé votre commande, vous recevrez un <strong>code par SMS</strong> au {{ commande.telephone }}. Saisissez-le dans <a href="{% url 'comptes:mes_commandes' %}">Mes commandes</a> pour la valider (livraison à {{ commande.gouvernorat }}).</p>
+  {% endif %}
 
   <div class="card mx-auto mt-4 shadow-sm" style="max-width:500px;">
     <div class="card-body text-start">
@@ -18,13 +58,21 @@
         </li>
         {% endfor %}
       </ul>
-      <div class="d-flex justify-content-between fw-bold">
+      {% if commande.remise_totale %}
+      <div class="recap-ligne"><span>Sous-total</span><span>{{ commande.sous_total }} DT</span></div>
+      {% if commande.remise_coupon %}<div class="recap-ligne recap-remise"><span>Code {{ commande.code_coupon }}</span><span>- {{ commande.remise_coupon }} DT</span></div>{% endif %}
+      {% if commande.remise_points %}<div class="recap-ligne recap-remise"><span>Points utilisés ({{ commande.points_utilises }})</span><span>- {{ commande.remise_points }} DT</span></div>{% endif %}
+      {% endif %}
+      <div class="d-flex justify-content-between fw-bold mt-1">
         <span>Total</span>
         <span class="prix-tag">{{ commande.total }} DT</span>
       </div>
+      <div class="small text-muted mt-2">Paiement : {{ commande.get_mode_paiement_display }} — {{ commande.get_statut_paiement_display }}</div>
     </div>
   </div>
 
-  <a href="{% url 'boutique:accueil' %}" class="btn btn-brand btn-lg mt-4">Retour à l'accueil</a>
+  <p class="small text-muted mt-3">⭐ Vous gagnerez <strong>des points de fidélité</strong> quand cette commande sera livrée. Solde actuel : {{ solde_points }} points.</p>
+
+  <a href="{% url 'boutique:accueil' %}" class="btn btn-brand btn-lg mt-3">Retour à l'accueil</a>
 </div>
 {% endblock %}

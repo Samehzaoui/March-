@@ -1,0 +1,30 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}{{ titre }}{% endblock %}
+{% block header %}🏷️ {{ titre }}{% endblock %}
+{% block dashboard_content %}
+
+<div class="card stat-card p-4" style="max-width:680px;">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger py-2 small">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    <div class="row g-3">
+      {% for field in form %}
+      <div class="{% if field.name == 'actif' %}col-12{% elif field.name in 'code description' %}col-12{% else %}col-md-6{% endif %}">
+        {% if field.name == 'actif' %}
+          <div class="form-check form-switch">{{ field }} <label class="form-check-label fw-semibold" for="{{ field.id_for_label }}">Coupon actif</label></div>
+        {% else %}
+          <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% endif %}
+        {% if field.errors %}<div class="text-danger small">{{ field.errors|join:" " }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mt-4">
+      <button type="submit" class="btn btn-brand">Enregistrer</button>
+      <a href="{% url 'dashboard:coupons_liste' %}" class="btn btn-outline-secondary">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -38,13 +38,40 @@
         </tr>
         {% endfor %}
       </tbody>
-      <tfoot>
-        <tr>
-          <th colspan="3" class="text-end">Total</th>
-          <th colspan="2" class="prix-tag">{{ panier.total }} DT</th>
-        </tr>
-      </tfoot>
     </table>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-md-6">
+      <div class="bg-white rounded-4 shadow-sm p-3">
+        <h2 class="h6 fw-bold mb-2">🏷️ Code promo</h2>
+        {% if recap.coupon %}
+          <div class="d-flex justify-content-between align-items-center">
+            <span><span class="badge badge-brand">{{ recap.coupon.code }}</span> <span class="small text-muted">{{ recap.coupon.libelle_remise }}</span></span>
+            <form method="post" action="{% url 'boutique:panier_coupon_retirer' %}">{% csrf_token %}<button class="btn btn-link btn-sm text-danger p-0">Retirer</button></form>
+          </div>
+        {% else %}
+          <form method="post" action="{% url 'boutique:panier_coupon_appliquer' %}" class="d-flex gap-2">
+            {% csrf_token %}
+            <input type="text" name="code" class="form-control text-uppercase" placeholder="Votre code" maxlength="40" autocomplete="off">
+            <button class="btn btn-brand-outline text-nowrap">Appliquer</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="bg-white rounded-4 shadow-sm p-3">
+        <div class="recap-ligne"><span>Sous-total</span><span>{{ recap.sous_total }} DT</span></div>
+        {% if recap.remise_coupon %}
+        <div class="recap-ligne recap-remise"><span>Code {{ recap.coupon.code }}</span><span>- {{ recap.remise_coupon }} DT</span></div>
+        {% endif %}
+        <hr class="my-2">
+        <div class="recap-ligne fw-bold fs-5"><span>Total</span><span class="prix-tag">{{ recap.total }} DT</span></div>
+        {% if user.is_authenticated and recap.points_possibles %}
+          <p class="small mt-2 mb-0">⭐ Vous pouvez utiliser <strong>{{ recap.points_possibles }} points</strong> (−{{ recap.remise_points_possible }} DT) à l'étape suivante.</p>
+        {% endif %}
+      </div>
+    </div>
   </div>
 
   <div class="d-flex justify-content-between mt-3">

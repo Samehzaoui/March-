@@ -20,7 +20,12 @@
           {% endfor %}
         </tbody>
         <tfoot>
-          <tr><th colspan="3" class="text-end">Total</th><th>{{ commande.total }} DT</th></tr>
+          {% if commande.remise_totale %}
+          <tr><td colspan="3" class="text-end">Sous-total</td><td>{{ commande.sous_total }} DT</td></tr>
+          {% if commande.remise_coupon %}<tr class="text-success"><td colspan="3" class="text-end">Code {{ commande.code_coupon }}</td><td>- {{ commande.remise_coupon }} DT</td></tr>{% endif %}
+          {% if commande.remise_points %}<tr class="text-success"><td colspan="3" class="text-end">Points utilisés ({{ commande.points_utilises }})</td><td>- {{ commande.remise_points }} DT</td></tr>{% endif %}
+          {% endif %}
+          <tr><th colspan="3" class="text-end">Total à payer</th><th>{{ commande.total }} DT</th></tr>
         </tfoot>
       </table>
     </div>
@@ -38,8 +43,47 @@
       <p class="mb-0 text-muted small">Commande passée le {{ commande.date_commande|date:"d/m/Y à H:i" }}</p>
     </div>
 
+    <div class="card stat-card p-4 mb-3">
+      <h2 class="h6 fw-bold mb-3">💳 Paiement</h2>
+      <p class="mb-1"><strong>Mode :</strong> {{ commande.get_mode_paiement_display }}</p>
+      <p class="mb-2"><strong>Statut :</strong>
+        {% if commande.statut_paiement == 'paye' %}<span class="badge badge-brand">Payé</span>
+        {% elif commande.statut_paiement == 'rembourse' %}<span class="badge bg-secondary">Remboursé</span>
+        {% elif commande.statut_paiement == 'a_la_livraison' %}<span class="badge bg-secondary">À encaisser à la livraison</span>
+        {% else %}<span class="badge bg-warning text-dark">{{ commande.get_statut_paiement_display }}</span>{% endif %}
+      </p>
+      {% if commande.paye_le %}<p class="small text-muted mb-1">Payé le {{ commande.paye_le|date:"d/m/Y H:i" }}</p>{% endif %}
+      {% if commande.reference_paiement %}<p class="small text-muted mb-2">Réf. fournisseur : <code>{{ commande.reference_paiement }}</code></p>{% endif %}
+
+      {% if commande.paiement_en_ligne and commande.statut_paiement == 'en_attente' or commande.statut_paiement == 'echoue' %}
+      <div class="d-flex flex-wrap gap-2">
+        {% if commande.reference_paiement %}
+        <form method="post">{% csrf_token %}<input type="hidden" name="action" value="verifier_paiement"><button class="btn btn-outline-secondary btn-sm">🔄 Vérifier chez le fournisseur</button></form>
+        {% endif %}
+        <form method="post" onsubmit="return confirm('Confirmez-vous avoir vu ce paiement sur le tableau de bord du fournisseur ?');">{% csrf_token %}<input type="hidden" name="action" value="marquer_paye"><button class="btn btn-outline-primary btn-sm">Marquer comme payé</button></form>
+      </div>
+      <p class="small text-muted mt-2 mb-0">Une commande payée en ligne ne peut être confirmée qu'une fois le paiement reçu.</p>
+      {% endif %}
+      {% if commande.statut == 'annulee' and commande.statut_paiement == 'paye' %}
+      <div class="alert alert-warning small mt-2 mb-2">Commande annulée mais payée : remboursez le client depuis le tableau de bord du fournisseur, puis enregistrez-le ici.</div>
+      <form method="post">{% csrf_token %}<input type="hidden" name="action" value="marquer_rembourse"><button class="btn btn-warning btn-sm">J'ai remboursé le client</button></form>
+      {% endif %}
+    </div>
+
     <div class="card stat-card p-4">
       <h2 class="h6 fw-bold mb-3">Changer le statut</h2>
+      {% if commande.validee_par_client %}
+        <div class="alert alert-success py-2 small">✅ {% if commande.mode_paiement != 'livraison' and commande.statut_paiement == 'paye' %}Validée par le paiement en ligne.{% else %}Validée par le client le {{ commande.date_validation_client|date:"d/m/Y H:i" }} (code SMS).{% endif %}</div>
+      {% elif commande.statut == 'confirmee' and commande.validation_sms_requise %}
+        <div class="alert alert-warning py-2 small">⏳ En attente du code SMS saisi par le client. La livraison est bloquée tant que le code n'est pas validé.</div>
+        <form method="post" class="mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="renvoyer_code">
+          <button type="submit" class="btn btn-outline-secondary btn-sm">Renvoyer le code SMS</button>
+        </form>
+      {% else %}
+        <p class="small text-muted">{% if commande.validation_sms_requise %}Le code SMS est envoyé automatiquement au client quand vous passez la commande à « Confirmée ».{% endif %}</p>
+      {% endif %}
       <form method="post">
         {% csrf_token %}
         <select name="statut" class="form-select mb-3">

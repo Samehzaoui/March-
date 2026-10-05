@@ -81,7 +81,7 @@ def verifier(request):
             else:
                 suivant = _url_sure(request, request.session.get(SESSION_NEXT))
                 panier = request.session.get('panier')      # conservé même si une autre session était ouverte
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 if panier:
                     request.session['panier'] = panier
                 request.session.pop(SESSION_TEL, None)
@@ -115,8 +115,12 @@ def deconnexion(request):
 
 @login_required(login_url='comptes:connexion')
 def mes_commandes(request):
+    from boutique import fidelite
     commandes = Commande.objects.filter(client=request.user).prefetch_related('lignes')
-    return render(request, 'comptes/mes_commandes.html', {'commandes': commandes})
+    points = fidelite.solde(request.user)
+    return render(request, 'comptes/mes_commandes.html', {
+        'commandes': commandes, 'solde_points': points, 'valeur_points': fidelite.valeur_points(max(points, 0)),
+    })
 
 
 @login_required(login_url='comptes:connexion')

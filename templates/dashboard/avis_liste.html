@@ -1,0 +1,59 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load boutique_extras %}
+{% block title %}Avis{% endblock %}
+{% block header %}⭐ Avis des clients{% endblock %}
+{% block dashboard_content %}
+
+<div class="card stat-card p-3 mb-3">
+  <form method="get" class="row g-2 align-items-center">
+    <div class="col-md-5"><input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Produit ou texte de l'avis..."></div>
+    <div class="col-md-3">
+      <select name="etat" class="form-select">
+        <option value="">Tous les avis</option>
+        <option value="visibles" {% if etat == 'visibles' %}selected{% endif %}>Visibles sur le site</option>
+        <option value="masques" {% if etat == 'masques' %}selected{% endif %}>Masqués</option>
+      </select>
+    </div>
+    <div class="col-md-4 d-flex gap-2">
+      <button class="btn btn-brand">Filtrer</button>
+      <a href="{% url 'dashboard:avis_liste' %}" class="btn btn-outline-secondary">Réinitialiser</a>
+    </div>
+  </form>
+</div>
+
+<div class="card stat-card p-3">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>Produit</th><th>Note</th><th>Commentaire</th><th>Client</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for a in page %}
+        <tr {% if not a.visible %}class="table-secondary"{% endif %}>
+          <td><a href="{{ a.produit.get_absolute_url }}" target="_blank" rel="noopener">{{ a.produit.nom }}</a></td>
+          <td class="text-nowrap"><span class="etoiles">{{ a.note|etoiles }}</span></td>
+          <td style="max-width:340px;">{{ a.commentaire|default:"—"|truncatechars:160 }}</td>
+          <td class="small">{{ a.client.first_name|default:a.client.username }}<br><a href="{% url 'dashboard:client_detail' a.client.pk %}">fiche</a></td>
+          <td class="small">{{ a.cree_le|date:"d/m/Y" }}</td>
+          <td class="text-nowrap">
+            <form method="post" action="{% url 'dashboard:avis_basculer' a.pk %}" class="d-inline">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button class="btn btn-sm {% if a.visible %}btn-outline-secondary{% else %}btn-brand{% endif %}">{% if a.visible %}Masquer{% else %}Afficher{% endif %}</button>
+            </form>
+            <a href="{% url 'dashboard:avis_supprimer' a.pk %}" class="btn btn-sm btn-outline-danger">Supprimer</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-muted">Aucun avis pour le moment.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page.paginator.num_pages > 1 %}
+  <nav class="d-flex justify-content-center gap-2 mt-2">
+    {% if page.has_previous %}<a class="btn btn-sm btn-outline-secondary" href="?q={{ q|urlencode }}&etat={{ etat|urlencode }}&page={{ page.previous_page_number }}">← Précédent</a>{% endif %}
+    <span class="small align-self-center text-muted">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a class="btn btn-sm btn-outline-secondary" href="?q={{ q|urlencode }}&etat={{ etat|urlencode }}&page={{ page.next_page_number }}">Suivant →</a>{% endif %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

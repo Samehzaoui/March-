@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+from decimal import Decimal
 from pathlib import Path
 from decouple import config
 
@@ -207,6 +208,28 @@ SOCIALACCOUNT_PROVIDERS = {
         }],
     },
 }
+
+# ---------------------------------------------------------------
+# Programme de fidélité (modifiable dans .env)
+# ---------------------------------------------------------------
+FIDELITE_POINTS_PAR_DT = config('FIDELITE_POINTS_PAR_DT', default='1', cast=Decimal)      # points gagnés par dinar payé
+FIDELITE_VALEUR_POINT = config('FIDELITE_VALEUR_POINT', default='0.020', cast=Decimal)    # 1 point = 0,020 DT (100 points = 2 DT)
+FIDELITE_MIN_POINTS = config('FIDELITE_MIN_POINTS', default=100, cast=int)               # solde minimum pour utiliser ses points
+FIDELITE_MAX_POURCENT = config('FIDELITE_MAX_POURCENT', default=50, cast=int)            # part max d'une commande payable en points
+
+# ---------------------------------------------------------------
+# Paiement en ligne (voir GUIDE_PAIEMENT_FIDELITE.md)
+# ---------------------------------------------------------------
+# Adresse publique du site, utilisée pour les retours de paiement. En production : https://monsite.tn
+SITE_URL = config('SITE_URL', default='http://127.0.0.1:8000').rstrip('/')
+PAIEMENT_TIMEOUT = 15   # secondes
+
+KONNECT_API_KEY = config('KONNECT_API_KEY', default='')
+KONNECT_WALLET_ID = config('KONNECT_WALLET_ID', default='')
+KONNECT_ENV = config('KONNECT_ENV', default='sandbox')       # "sandbox" (test) ou "production"
+
+FLOUCI_PUBLIC_KEY = config('FLOUCI_PUBLIC_KEY', default='')
+FLOUCI_PRIVATE_KEY = config('FLOUCI_PRIVATE_KEY', default='')
 
 # Authentification - espace administrateur (dashboard)
 LOGIN_URL = 'dashboard:login'

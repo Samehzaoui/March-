@@ -29,6 +29,8 @@
       <a class="nav-link {% if 'categorie' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard:categories_liste' %}">📁 Catégories</a>
       <a class="nav-link {% if 'commande' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard:commandes_liste' %}">📦 Commandes</a>
       <a class="nav-link {% if 'client' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard:clients_liste' %}">👥 Clients</a>
+      <a class="nav-link {% if 'coupon' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard:coupons_liste' %}">🏷️ Coupons</a>
+      <a class="nav-link {% if 'avis' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard:avis_liste' %}">⭐ Avis</a>
       <a class="nav-link {% if 'paiement' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard:paiements_liste' %}">💳 Moyens de paiement</a>
       <a class="nav-link {% if 'slide' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard:slides_liste' %}">🖼️ Images d'accueil</a>
       <hr class="text-secondary">

@@ -22,7 +22,7 @@
           <td>{{ c.telephone }}</td>
           <td>{{ c.gouvernorat }}</td>
           <td>{{ c.total }} DT</td>
-          <td><span class="badge bg-secondary">{{ c.get_statut_display }}</span></td>
+          <td><span class="badge bg-secondary">{{ c.get_statut_display }}</span>{% if c.validee_par_client %} <span class="badge badge-brand">✓ validée</span>{% endif %}{% if c.mode_paiement != 'livraison' %} <span class="badge {% if c.statut_paiement == 'paye' %}badge-brand{% else %}bg-warning text-dark{% endif %}">{{ c.get_statut_paiement_display }}</span>{% endif %}</td>
           <td>{{ c.date_commande|date:"d/m/Y H:i" }}</td>
           <td><a href="{% url 'dashboard:commande_detail' c.pk %}" class="btn btn-sm btn-outline-primary">Détails</a></td>
         </tr>

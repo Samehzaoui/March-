@@ -4,20 +4,35 @@
 <div class="container py-4">
   <h1 class="h4 fw-bold mb-4">Finaliser ma commande</h1>
 
+  <form method="post">
+  {% csrf_token %}
   <div class="row g-4">
     <div class="col-md-7">
-      <form method="post" class="bg-white p-4 rounded shadow-sm">
-        {% csrf_token %}
+      <div class="bg-white p-4 rounded shadow-sm mb-3">
+        {% if telephone %}
+        <div class="alert alert-success py-2 small">📱 Numéro vérifié : <strong>{{ telephone }}</strong>. Le code de validation de votre commande sera envoyé à ce numéro.</div>
+        {% endif %}
+        {% if form.non_field_errors %}<div class="alert alert-danger py-2 small">{{ form.non_field_errors|join:" " }}</div>{% endif %}
         {% for field in form %}
         <div class="mb-3">
           <label class="form-label fw-semibold">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
           {{ field }}
+          {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
           {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
         </div>
         {% endfor %}
-        <button type="submit" class="btn btn-brand btn-lg w-100">Confirmer la commande</button>
-        <p class="small text-muted mt-2 mb-0">Paiement à la livraison. Vous serez contacté(e) par téléphone pour confirmer.</p>
-      </form>
+      </div>
+
+      <div class="bg-white p-4 rounded shadow-sm">
+        <h2 class="h6 fw-bold mb-3">💳 Mode de paiement</h2>
+        {% for code, libelle in modes %}
+        <label class="mode-paiement">
+          <input type="radio" name="mode_paiement" value="{{ code }}" class="form-check-input me-2" {% if code == mode_choisi %}checked{% endif %}>
+          {{ libelle }}
+        </label>
+        {% endfor %}
+        {% if modes|length == 1 %}<p class="small text-muted mb-0">Paiement en espèces à la réception de votre commande.</p>{% endif %}
+      </div>
     </div>
 
     <div class="col-md-5">
@@ -31,12 +46,56 @@
           </li>
           {% endfor %}
         </ul>
-        <div class="d-flex justify-content-between fw-bold fs-5">
-          <span>Total</span>
-          <span class="prix-tag">{{ panier.total }} DT</span>
+
+        <div class="recap-ligne"><span>Sous-total</span><span>{{ recap.sous_total }} DT</span></div>
+        {% if recap.coupon %}
+        <div class="recap-ligne recap-remise"><span>Code {{ recap.coupon.code }}</span><span>- {{ recap.remise_coupon }} DT</span></div>
+        {% else %}
+        <div class="small mt-1"><a href="{% url 'boutique:panier' %}">🏷️ J'ai un code promo</a></div>
+        {% endif %}
+
+        {% if recap.points_possibles %}
+        <div class="form-check mt-3 p-2 rounded" style="background:#fff9e6;">
+          <input class="form-check-input ms-0 me-2" type="checkbox" name="utiliser_points" id="utiliser_points" {% if utiliser_points %}checked{% endif %}>
+          <label class="form-check-label small" for="utiliser_points">
+            ⭐ Utiliser mes <strong>{{ recap.points_possibles }} points</strong> (−{{ recap.remise_points_possible }} DT)
+            <span class="text-muted d-block">Solde : {{ recap.solde_points }} points</span>
+          </label>
         </div>
+        <div class="recap-ligne recap-remise mt-2" id="ligne-points" {% if not recap.remise_points %}style="display:none"{% endif %}>
+          <span>Points utilisés</span><span>- {{ recap.remise_points_possible }} DT</span>
+        </div>
+        {% elif recap.solde_points %}
+        <p class="small text-muted mt-2 mb-0">⭐ Solde fidélité : {{ recap.solde_points }} points (utilisables dès 100 points).</p>
+        {% endif %}
+
+        <hr class="my-2">
+        <div class="recap-ligne fw-bold fs-5"><span>Total</span><span class="prix-tag" id="total-affiche"
+             data-sans-points="{{ total_avant_points }}" data-remise-points="{{ recap.remise_points_possible }}">{{ recap.total }} DT</span></div>
+        <p class="small text-muted mt-1 mb-3">Le montant final est confirmé à la validation de la commande.</p>
+        <button type="submit" class="btn btn-brand btn-lg w-100">Confirmer la commande</button>
+        <p class="small text-muted mt-2 mb-0">Vous gagnerez des points de fidélité quand la commande sera livrée.</p>
       </div>
     </div>
   </div>
+  </form>
 </div>
+
+<script>
+(function () {
+  var coche = document.getElementById('utiliser_points');
+  var total = document.getElementById('total-affiche');
+  var ligne = document.getElementById('ligne-points');
+  if (!coche || !total) return;
+  function maj() {
+    var base = parseFloat(total.dataset.sansPoints.replace(',', '.'));
+    var remise = parseFloat(total.dataset.remisePoints.replace(',', '.'));
+    var final = coche.checked ? Math.max(base - remise, 0) : base;
+    total.textContent = final.toFixed(3) + ' DT';
+    if (ligne) ligne.style.display = coche.checked ? '' : 'none';
+  }
+  coche.addEventListener('change', maj);
+  maj();
+})();
+</script>
 {% endblock %}

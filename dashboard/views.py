@@ -5,9 +5,14 @@ from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum, Count, Q
+from django.utils import timezone
 
-from boutique.models import Produit, Categorie, Commande, LigneCommande, MoyenPaiement, ImageAccueil
-from boutique.forms import ProduitForm, CategorieForm, MoyenPaiementForm, ImageAccueilForm
+from boutique import fidelite
+from boutique.models import (Avis, Commande, Coupon, Categorie, ImageAccueil, LigneCommande, MoyenPaiement,
+                             MouvementPoints, Produit)
+from boutique.forms import ProduitForm, CategorieForm, CouponForm, MoyenPaiementForm, ImageAccueilForm
+from boutique.paiements import service as paiement_service
+from comptes import services as sms_services
 
 
 def est_staff(user):
@@ -284,11 +289,67 @@ def slide_supprimer(request, pk):
 def commande_detail(request, pk):
     commande = get_object_or_404(Commande, pk=pk)
     if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'renvoyer_code':
+            if commande.statut == 'confirmee' and not commande.validee_par_client and commande.validation_sms_requise:
+                resultat = sms_services.envoyer_code_commande(commande)
+                if resultat.ok:
+                    messages.success(request, f"Code SMS renvoyé au {commande.telephone}.")
+                else:
+                    messages.warning(request, resultat.message)
+            else:
+                messages.warning(request, "Le code ne peut être renvoyé que pour une commande confirmée et non encore validée.")
+            return redirect('dashboard:commande_detail', pk=pk)
+
+        if action == 'verifier_paiement':
+            if commande.paiement_en_ligne and commande.reference_paiement:
+                commande = paiement_service.synchroniser(commande.pk, delai_anti_spam=0)
+                if commande.statut_paiement == 'paye':
+                    messages.success(request, "Le fournisseur confirme le paiement.")
+                else:
+                    messages.info(request, "Paiement non confirmé par le fournisseur pour le moment.")
+            return redirect('dashboard:commande_detail', pk=pk)
+
+        if action == 'marquer_paye':
+            # Cas de secours : paiement vu sur le tableau de bord Konnect / Flouci mais non reçu par le site.
+            if commande.paiement_en_ligne and commande.statut_paiement in ('en_attente', 'echoue'):
+                paiement_service.marquer_paye(commande, par=f"admin {request.user.username}")
+                messages.success(request, "Commande marquée comme payée.")
+            return redirect('dashboard:commande_detail', pk=pk)
+
+        if action == 'marquer_rembourse':
+            if commande.statut_paiement == 'paye' and commande.statut == 'annulee':
+                commande.statut_paiement = 'rembourse'
+                commande.save(update_fields=['statut_paiement', 'date_maj'])
+                messages.success(request, "Remboursement enregistré. Pensez à l'effectuer chez le fournisseur de paiement.")
+            return redirect('dashboard:commande_detail', pk=pk)
+
         nouveau_statut = request.POST.get('statut')
         if nouveau_statut in dict(Commande.STATUT_CHOICES):
+            traitement = nouveau_statut in ('confirmee', 'en_livraison', 'livree')
+            if traitement and commande.paiement_en_ligne and commande.statut_paiement != 'paye':
+                messages.error(request, "Impossible : le paiement en ligne de cette commande n'est pas encore reçu.")
+                return redirect('dashboard:commande_detail', pk=pk)
+            if (nouveau_statut in ('en_livraison', 'livree') and commande.validation_sms_requise
+                    and not commande.validee_par_client):
+                messages.error(request, "Impossible : le client n'a pas encore validé la commande avec le code SMS.")
+                return redirect('dashboard:commande_detail', pk=pk)
+            ancien_statut = commande.statut
             commande.statut = nouveau_statut
+            if traitement and not commande.validation_sms_requise and not commande.validee_par_client:
+                # Commande payée en ligne : le paiement vaut validation.
+                commande.validee_par_client = True
+                commande.date_validation_client = timezone.now()
             commande.save()
             messages.success(request, "Statut de la commande mis à jour.")
+            if (nouveau_statut == 'confirmee' and ancien_statut != 'confirmee'
+                    and commande.validation_sms_requise and not commande.validee_par_client):
+                resultat = sms_services.envoyer_code_commande(commande)
+                if resultat.ok:
+                    messages.success(request, f"Code de validation envoyé par SMS au {commande.telephone}.")
+                else:
+                    messages.warning(request, f"Le SMS n'a pas été envoyé : {resultat.message} Utilisez « Renvoyer le code SMS » ci-dessous.")
             return redirect('dashboard:commande_detail', pk=pk)
     return render(request, 'dashboard/commande_detail.html', {'commande': commande})
 
@@ -318,16 +379,29 @@ _STATUTS_COMPTES = ['en_attente', 'confirmee', 'en_livraison', 'livree']  # annu
 
 
 def _clients_queryset():
-    """Clients = comptes non staff, avec nb de commandes et total dépensé (hors annulées)."""
-    montant = ExpressionWrapper(
-        F('commandes__lignes__prix_unitaire') * F('commandes__lignes__quantite'),
-        output_field=DecimalField(max_digits=14, decimal_places=3),
-    )
+    """Clients = comptes non staff, avec nb de commandes et total dépensé (hors annulées, remises déduites)."""
+    from django.db.models import OuterRef, Subquery, Value
+    from django.db.models.functions import Coalesce
+
+    decimal = DecimalField(max_digits=14, decimal_places=3)
+    zero = Value(Decimal('0'), output_field=decimal)
+    articles = (LigneCommande.objects
+                .filter(commande__client=OuterRef('pk'), commande__statut__in=_STATUTS_COMPTES)
+                .order_by().values('commande__client')
+                .annotate(t=Sum(ExpressionWrapper(F('prix_unitaire') * F('quantite'), output_field=decimal)))
+                .values('t'))
+    remises = (Commande.objects
+               .filter(client=OuterRef('pk'), statut__in=_STATUTS_COMPTES)
+               .order_by().values('client')
+               .annotate(r=Sum(ExpressionWrapper(F('remise_coupon') + F('remise_points'), output_field=decimal)))
+               .values('r'))
     return (_Utilisateur.objects.filter(is_staff=False, is_superuser=False)
             .select_related('profil')
             .prefetch_related('socialaccount_set')
             .annotate(nb_commandes=Count('commandes', distinct=True),
-                      total_depense=Sum(montant, filter=Q(commandes__statut__in=_STATUTS_COMPTES))))
+                      _articles=Coalesce(Subquery(articles, output_field=decimal), zero),
+                      _remises=Coalesce(Subquery(remises, output_field=decimal), zero))
+            .annotate(total_depense=ExpressionWrapper(F('_articles') - F('_remises'), output_field=decimal)))
 
 
 def _methodes_client(u):
@@ -413,7 +487,12 @@ def client_detail(request, pk):
     client = get_object_or_404(_clients_queryset(), pk=pk)
     _preparer(client)
     commandes = client.commandes.prefetch_related('lignes').order_by('-date_commande')
-    return render(request, 'dashboard/client_detail.html', {'client': client, 'commandes': commandes})
+    points = fidelite.solde(client)
+    return render(request, 'dashboard/client_detail.html', {
+        'client': client, 'commandes': commandes,
+        'solde_points': points, 'valeur_points': fidelite.valeur_points(max(points, 0)),
+        'mouvements': client.mouvements_points.select_related('commande')[:15],
+    })
 
 
 @login_required(login_url='dashboard:login')
@@ -463,3 +542,111 @@ def client_ajouter(request):
         messages.success(request, "Client créé avec succès.")
         return redirect('dashboard:client_detail', pk=client.pk)
     return render(request, 'dashboard/client_form.html', {'form': form, 'titre': 'Nouveau client'})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+@require_POST
+def client_points_ajuster(request, pk):
+    """Ajustement manuel des points d'un client (geste commercial, correction)."""
+    client = get_object_or_404(_Utilisateur, pk=pk, is_staff=False, is_superuser=False)
+    motif = (request.POST.get('motif') or '').strip()[:200]
+    try:
+        points = int(request.POST.get('points', ''))
+    except ValueError:
+        points = 0
+    if points == 0 or abs(points) > 100000:
+        messages.error(request, "Indiquez un nombre de points non nul (positif pour ajouter, négatif pour retirer).")
+    elif not motif:
+        messages.error(request, "Indiquez le motif de l'ajustement.")
+    elif fidelite.solde(client) + points < 0:
+        messages.error(request, "Ajustement refusé : le solde deviendrait négatif.")
+    else:
+        MouvementPoints.objects.create(client=client, points=points, type=MouvementPoints.TYPE_AJUSTEMENT,
+                                       motif=f"{motif} (par {request.user.username})")
+        messages.success(request, f"{points:+d} points enregistrés.")
+    return redirect('dashboard:client_detail', pk=pk)
+
+
+# ---------- Coupons ----------
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def coupons_liste(request):
+    coupons = Coupon.objects.annotate(
+        nb_util=Count('commandes', filter=Q(commandes__statut__in=_STATUTS_COMPTES), distinct=True))
+    return render(request, 'dashboard/coupons_liste.html', {'coupons': coupons, 'maintenant': timezone.now()})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def coupon_ajouter(request):
+    form = CouponForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Coupon créé.")
+        return redirect('dashboard:coupons_liste')
+    return render(request, 'dashboard/coupon_form.html', {'form': form, 'titre': 'Nouveau coupon'})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def coupon_modifier(request, pk):
+    coupon = get_object_or_404(Coupon, pk=pk)
+    form = CouponForm(request.POST or None, instance=coupon)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Coupon mis à jour.")
+        return redirect('dashboard:coupons_liste')
+    return render(request, 'dashboard/coupon_form.html', {'form': form, 'titre': f'Modifier {coupon.code}'})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def coupon_supprimer(request, pk):
+    coupon = get_object_or_404(Coupon, pk=pk)
+    if request.method == 'POST':
+        coupon.delete()
+        messages.success(request, "Coupon supprimé (les commandes passées gardent leur remise).")
+        return redirect('dashboard:coupons_liste')
+    return render(request, 'dashboard/confirmer_suppression.html', {'objet': coupon.code})
+
+
+# ---------- Avis ----------
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def avis_liste(request):
+    avis = Avis.objects.select_related('produit', 'client')
+    etat = request.GET.get('etat', '')
+    q = request.GET.get('q', '').strip()
+    if etat == 'visibles':
+        avis = avis.filter(visible=True)
+    elif etat == 'masques':
+        avis = avis.filter(visible=False)
+    if q:
+        avis = avis.filter(Q(produit__nom__icontains=q) | Q(commentaire__icontains=q))
+    page = Paginator(avis, 25).get_page(request.GET.get('page'))
+    return render(request, 'dashboard/avis_liste.html', {'page': page, 'etat': etat, 'q': q})
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+@require_POST
+def avis_basculer(request, pk):
+    avis = get_object_or_404(Avis, pk=pk)
+    avis.visible = not avis.visible
+    avis.save(update_fields=['visible', 'modifie_le'])
+    messages.success(request, "Avis affiché sur le site." if avis.visible else "Avis masqué du site.")
+    return redirect(request.POST.get('next') or 'dashboard:avis_liste')
+
+
+@login_required(login_url='dashboard:login')
+@user_passes_test(est_staff, login_url='dashboard:login')
+def avis_supprimer(request, pk):
+    avis = get_object_or_404(Avis, pk=pk)
+    if request.method == 'POST':
+        avis.delete()
+        messages.success(request, "Avis supprimé.")
+        return redirect('dashboard:avis_liste')
+    return render(request, 'dashboard/confirmer_suppression.html', {'objet': f"avis sur {avis.produit}"})

@@ -32,6 +32,9 @@
       {% if produit.bio %}<span class="badge badge-bio mb-2">Produit Bio</span>{% endif %}
       {% if produit.en_stock %}<span class="badge badge-disponible mb-2">Disponible</span>{% endif %}
       <h1 class="h3 fw-bold">{{ produit.nom }}</h1>
+      {% if produit.nb_avis %}
+        <a href="#avis" class="text-decoration-none small d-inline-block mb-1"><span class="etoiles">{{ produit.note_moyenne|etoiles }}</span> <strong>{{ produit.note_moyenne }}</strong>/5 · {{ produit.nb_avis }} avis</a>
+      {% endif %}
       {% if produit.origine %}<p class="text-muted mb-2">Origine : {{ produit.origine }}</p>{% endif %}
       <p class="display-6 prix-tag">{{ produit.prix }} DT <span class="fs-6 text-muted fw-normal">/ {{ produit.get_unite_display }}</span></p>
 
@@ -51,6 +54,70 @@
       {% endif %}
     </div>
   </div>
+
+  <section id="avis" class="mt-5">
+    <h2 class="h5 fw-bold mb-3">⭐ Avis des clients</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        {% if produit.nb_avis %}
+          <div class="bg-white rounded-4 shadow-sm p-3">
+            <div class="display-6 fw-bold text-brand-navy">{{ produit.note_moyenne }}<span class="fs-6 text-muted fw-normal"> / 5</span></div>
+            <div class="etoiles fs-5">{{ produit.note_moyenne|etoiles }}</div>
+            <div class="small text-muted mb-3">{{ produit.nb_avis }} avis</div>
+            {% for note, nb, pct in barres %}
+            <div class="d-flex align-items-center gap-2 small mb-1">
+              <span style="width:14px;">{{ note }}</span><span class="etoiles">★</span>
+              <div class="progress flex-grow-1" style="height:8px;"><div class="progress-bar bg-brand" style="width:{{ pct }}%"></div></div>
+              <span class="text-muted" style="width:24px;">{{ nb }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted">Pas encore d'avis sur ce produit.</p>
+        {% endif %}
+
+        <div class="bg-white rounded-4 shadow-sm p-3 mt-3">
+          {% if not user.is_authenticated %}
+            <p class="small mb-2">Connectez-vous pour donner votre avis après livraison.</p>
+            <a href="{% url 'comptes:connexion' %}?next={{ request.path }}" class="btn btn-brand-outline btn-sm">Se connecter</a>
+          {% elif peut_noter %}
+            <h3 class="h6 fw-bold">{% if mon_avis %}Modifier mon avis{% else %}Donner mon avis{% endif %}</h3>
+            <form method="post" action="{% url 'boutique:avis_poster' produit.slug %}">
+              {% csrf_token %}
+              <div class="etoiles-saisie mb-2">
+                {% for n in "54321" %}
+                  <input type="radio" id="note{{ n }}" name="note" value="{{ n }}" {% if mon_avis.note|stringformat:"s" == n %}checked{% endif %} required>
+                  <label for="note{{ n }}" title="{{ n }} sur 5">★</label>
+                {% endfor %}
+              </div>
+              {{ form_avis.commentaire }}
+              <button class="btn btn-brand btn-sm mt-2">Publier</button>
+            </form>
+            {% if mon_avis %}
+            <form method="post" action="{% url 'boutique:avis_supprimer' produit.slug %}" class="mt-2" onsubmit="return confirm('Supprimer votre avis ?');">
+              {% csrf_token %}
+              <button class="btn btn-link btn-sm text-danger p-0">Supprimer mon avis</button>
+            </form>
+            {% endif %}
+          {% else %}
+            <p class="small text-muted mb-0">Vous pourrez noter ce produit une fois qu'une commande qui le contient aura été livrée.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        {% for a in avis %}
+        <div class="bg-white rounded-4 shadow-sm p-3 mb-3">
+          <div class="d-flex justify-content-between flex-wrap">
+            <div><span class="etoiles">{{ a.note|etoiles }}</span> <strong class="ms-1">{{ a.auteur }}</strong> <span class="badge badge-brand ms-1">Achat vérifié</span></div>
+            <span class="small text-muted">{{ a.cree_le|date:"d/m/Y" }}</span>
+          </div>
+          {% if a.commentaire %}<p class="mb-0 mt-2">{{ a.commentaire|linebreaksbr }}</p>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
 
   {% if produits_similaires %}
   <h2 class="h5 fw-bold mt-5 mb-3">Produits similaires</h2>

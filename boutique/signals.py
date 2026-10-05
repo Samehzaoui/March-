@@ -1,7 +1,7 @@
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils.text import slugify
-from .models import Produit, Categorie
+from .models import Avis, Categorie, Commande, Produit
 
 
 def generer_slug_unique(instance, base_slug, model):
@@ -24,3 +24,21 @@ def produit_pre_save(sender, instance, **kwargs):
 def categorie_pre_save(sender, instance, **kwargs):
     if not instance.slug:
         instance.slug = generer_slug_unique(instance, slugify(instance.nom), Categorie)
+
+
+@receiver(post_save, sender=Avis)
+@receiver(post_delete, sender=Avis)
+def avis_modifie(sender, instance, **kwargs):
+    """Garde la note moyenne et le nombre d'avis du produit à jour."""
+    try:
+        produit = Produit.objects.get(pk=instance.produit_id)
+    except Produit.DoesNotExist:
+        return
+    produit.recalculer_avis()
+
+
+@receiver(post_save, sender=Commande)
+def commande_enregistree(sender, instance, **kwargs):
+    """Points de fidélité : gain à la livraison, remboursement / retrait à l'annulation."""
+    from . import fidelite
+    fidelite.synchroniser(instance)

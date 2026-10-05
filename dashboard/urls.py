@@ -23,6 +23,17 @@ urlpatterns = [
     path('clients/export/', views.clients_export, name='clients_export'),
     path('clients/<int:pk>/', views.client_detail, name='client_detail'),
     path('clients/<int:pk>/statut/', views.client_statut, name='client_statut'),
+    path('clients/<int:pk>/points/', views.client_points_ajuster, name='client_points_ajuster'),
+
+    path('coupons/', views.coupons_liste, name='coupons_liste'),
+    path('coupons/ajouter/', views.coupon_ajouter, name='coupon_ajouter'),
+    path('coupons/<int:pk>/modifier/', views.coupon_modifier, name='coupon_modifier'),
+    path('coupons/<int:pk>/supprimer/', views.coupon_supprimer, name='coupon_supprimer'),
+
+    path('avis/', views.avis_liste, name='avis_liste'),
+    path('avis/<int:pk>/basculer/', views.avis_basculer, name='avis_basculer'),
+    path('avis/<int:pk>/supprimer/', views.avis_supprimer, name='avis_supprimer'),
+
     path('commandes/', views.commandes_liste, name='commandes_liste'),
     path('commandes/<int:pk>/', views.commande_detail, name='commande_detail'),
 

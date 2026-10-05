@@ -547,3 +547,24 @@ a:hover {
 }
 .auth-card button[type=submit]:not(.btn):not(.dropdown-item):hover { background: var(--c-teal-dark); }
 .auth-card h1 { font-size: 1.35rem; font-weight: 700; color: var(--c-navy); text-align: center; margin-bottom: 1rem; }
+
+/* ---------- Avis et notes ---------- */
+.etoiles { color: #f5a623; letter-spacing: 1px; }
+.bg-brand { background-color: var(--c-teal) !important; }
+
+/* Saisie de la note : étoiles cliquables (le survol et la sélection colorent les étoiles de droite à gauche) */
+.etoiles-saisie { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: 2px; }
+.etoiles-saisie input { position: absolute; opacity: 0; pointer-events: none; }
+.etoiles-saisie label { font-size: 1.9rem; line-height: 1; color: #d5dde2; cursor: pointer; transition: color .15s ease, transform .15s ease; }
+.etoiles-saisie label:hover, .etoiles-saisie label:hover ~ label,
+.etoiles-saisie input:checked ~ label { color: #f5a623; }
+.etoiles-saisie label:hover { transform: scale(1.15); }
+.etoiles-saisie input:focus-visible + label { outline: 2px solid var(--c-teal); border-radius: 4px; }
+
+/* ---------- Coupons, fidélité et paiement ---------- */
+.recap-ligne { display: flex; justify-content: space-between; gap: 1rem; }
+.recap-remise { color: var(--c-teal-dark); font-weight: 600; }
+.mode-paiement { display: block; border: 1.5px solid #dde6ea; border-radius: 12px; padding: .7rem .9rem; margin-bottom: .5rem; cursor: pointer; transition: border-color .2s ease, background .2s ease; }
+.mode-paiement:hover { border-color: var(--c-teal); }
+.mode-paiement:has(input:checked) { border-color: var(--c-teal); background: var(--c-teal-light); }
+.badge-points { background: #fff4d6; color: #7a5a00; }

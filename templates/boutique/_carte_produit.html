@@ -23,6 +23,7 @@
       <a href="{{ produit.get_absolute_url }}" class="text-decoration-none text-dark">{{ produit.nom }}</a>
     </h6>
     <p class="small text-muted mb-1">{{ produit.categorie.nom }}{% if produit.origine %} · {{ produit.origine }}{% endif %}</p>
+    {% if produit.nb_avis %}<p class="small mb-1"><span class="etoiles">{{ produit.note_moyenne|etoiles }}</span> <span class="text-muted">({{ produit.nb_avis }})</span></p>{% endif %}
     <p class="prix-tag mb-2">{{ produit.prix }} DT <span class="small text-muted fw-normal">/ {{ produit.get_unite_display }}</span></p>
     {% if produit.en_stock %}
       <form method="post" action="{% url 'boutique:panier_ajouter' produit.id %}">
