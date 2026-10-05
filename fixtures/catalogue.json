@@ -1,0 +1,1227 @@
+[
+{
+  "model": "boutique.categorie",
+  "pk": 1,
+  "fields": {
+    "nom": "Légumes",
+    "slug": "legumes",
+    "type_produit": "legume",
+    "image": ""
+  }
+},
+{
+  "model": "boutique.categorie",
+  "pk": 2,
+  "fields": {
+    "nom": "Fruits",
+    "slug": "fruits",
+    "type_produit": "fruit",
+    "image": ""
+  }
+},
+{
+  "model": "boutique.categorie",
+  "pk": 3,
+  "fields": {
+    "nom": "Poissons",
+    "slug": "poissons",
+    "type_produit": "poisson",
+    "image": ""
+  }
+},
+{
+  "model": "boutique.categorie",
+  "pk": 4,
+  "fields": {
+    "nom": "Viandes",
+    "slug": "viandes",
+    "type_produit": "viande",
+    "image": "categories/VIO.jpg"
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 1,
+  "fields": {
+    "categorie": 1,
+    "nom": "Tomate",
+    "slug": "tomate",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD41.png",
+    "prix": "1.853",
+    "unite": "kg",
+    "stock": 80,
+    "origine": "Nabeul",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.032Z",
+    "date_maj": "2026-10-03T18:28:51.973Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 2,
+  "fields": {
+    "categorie": 1,
+    "nom": "Pomme de terre",
+    "slug": "pomme-de-terre",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "",
+    "prix": "1.394",
+    "unite": "kg",
+    "stock": 94,
+    "origine": "Kairouan",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.034Z",
+    "date_maj": "2026-09-10T09:12:08.034Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 3,
+  "fields": {
+    "categorie": 1,
+    "nom": "Oignon",
+    "slug": "oignon",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD45.png",
+    "prix": "1.499",
+    "unite": "kg",
+    "stock": 71,
+    "origine": "Béja",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.036Z",
+    "date_maj": "2026-10-04T20:08:30.589Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 4,
+  "fields": {
+    "categorie": 1,
+    "nom": "Ail",
+    "slug": "ail",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD_2_MxxqTxY.png",
+    "prix": "7.131",
+    "unite": "kg",
+    "stock": 187,
+    "origine": "Nabeul",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.037Z",
+    "date_maj": "2026-10-01T22:24:42.709Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 5,
+  "fields": {
+    "categorie": 1,
+    "nom": "Poivron vert",
+    "slug": "poivron-vert",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD50.png",
+    "prix": "1.990",
+    "unite": "kg",
+    "stock": 145,
+    "origine": "Bizerte",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.039Z",
+    "date_maj": "2026-10-04T20:16:27.146Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 6,
+  "fields": {
+    "categorie": 1,
+    "nom": "Poivron rouge",
+    "slug": "poivron-rouge",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "",
+    "prix": "2.713",
+    "unite": "kg",
+    "stock": 128,
+    "origine": "Bizerte",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.041Z",
+    "date_maj": "2026-09-10T09:12:08.041Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 7,
+  "fields": {
+    "categorie": 1,
+    "nom": "Piment fort (Felfel)",
+    "slug": "piment-fort-felfel",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD49.png",
+    "prix": "2.432",
+    "unite": "kg",
+    "stock": 159,
+    "origine": "Nabeul",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.042Z",
+    "date_maj": "2026-10-04T20:14:55.246Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 8,
+  "fields": {
+    "categorie": 1,
+    "nom": "Courgette",
+    "slug": "courgette",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD_14_Ve4H5Ey.png",
+    "prix": "2.163",
+    "unite": "kg",
+    "stock": 135,
+    "origine": "Cap Bon",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.044Z",
+    "date_maj": "2026-10-01T22:29:13.841Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 9,
+  "fields": {
+    "categorie": 1,
+    "nom": "Aubergine",
+    "slug": "aubergine",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/aubergine_560x560_97PQb7T.jpg",
+    "prix": "1.254",
+    "unite": "kg",
+    "stock": 92,
+    "origine": "Kairouan",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.045Z",
+    "date_maj": "2026-10-01T22:25:59.793Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 10,
+  "fields": {
+    "categorie": 1,
+    "nom": "Carotte",
+    "slug": "carotte",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD_4_sv43PEN.png",
+    "prix": "1.041",
+    "unite": "kg",
+    "stock": 159,
+    "origine": "Bizerte",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.047Z",
+    "date_maj": "2026-10-01T22:27:06.263Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 11,
+  "fields": {
+    "categorie": 1,
+    "nom": "Concombre",
+    "slug": "concombre",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD12_E0qOQC5.png",
+    "prix": "1.003",
+    "unite": "kg",
+    "stock": 59,
+    "origine": "Nabeul",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.048Z",
+    "date_maj": "2026-10-01T22:23:50.143Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 12,
+  "fields": {
+    "categorie": 1,
+    "nom": "Laitue",
+    "slug": "laitue",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD_28_vuBUJGw.png",
+    "prix": "1.192",
+    "unite": "piece",
+    "stock": 79,
+    "origine": "Ariana",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.050Z",
+    "date_maj": "2026-10-04T20:16:18.486Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 13,
+  "fields": {
+    "categorie": 1,
+    "nom": "Persil",
+    "slug": "persil",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "",
+    "prix": "0.706",
+    "unite": "botte",
+    "stock": 116,
+    "origine": "Manouba",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.051Z",
+    "date_maj": "2026-09-10T09:12:08.051Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 14,
+  "fields": {
+    "categorie": 1,
+    "nom": "Coriandre",
+    "slug": "coriandre",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD_13_M8ZebP0.png",
+    "prix": "0.640",
+    "unite": "botte",
+    "stock": 55,
+    "origine": "Manouba",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.053Z",
+    "date_maj": "2026-10-01T22:28:34.225Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 15,
+  "fields": {
+    "categorie": 1,
+    "nom": "Menthe (Nãanãa)",
+    "slug": "menthe-naanaa",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "",
+    "prix": "0.830",
+    "unite": "botte",
+    "stock": 45,
+    "origine": "Nabeul",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.055Z",
+    "date_maj": "2026-09-10T09:12:08.055Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 16,
+  "fields": {
+    "categorie": 1,
+    "nom": "Fève fraîche (Foul)",
+    "slug": "feve-fraiche-foul",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD31_SNAsUiG.png",
+    "prix": "2.044",
+    "unite": "kg",
+    "stock": 108,
+    "origine": "Bizerte",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.057Z",
+    "date_maj": "2026-10-01T22:31:57.868Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 17,
+  "fields": {
+    "categorie": 1,
+    "nom": "Petit pois (Jelbana)",
+    "slug": "petit-pois-jelbana",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "",
+    "prix": "3.682",
+    "unite": "kg",
+    "stock": 23,
+    "origine": "Cap Bon",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.058Z",
+    "date_maj": "2026-09-10T09:12:08.058Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 18,
+  "fields": {
+    "categorie": 1,
+    "nom": "Chou blanc",
+    "slug": "chou-blanc",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/Cromp_GHI23Gm.webp",
+    "prix": "1.454",
+    "unite": "piece",
+    "stock": 73,
+    "origine": "Béja",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.060Z",
+    "date_maj": "2026-10-01T22:27:23.774Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 19,
+  "fields": {
+    "categorie": 1,
+    "nom": "Chou-fleur",
+    "slug": "chou-fleur",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD_7_CZqPTFl.png",
+    "prix": "2.263",
+    "unite": "piece",
+    "stock": 78,
+    "origine": "Béja",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.062Z",
+    "date_maj": "2026-10-01T22:27:38.587Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 20,
+  "fields": {
+    "categorie": 1,
+    "nom": "Betterave",
+    "slug": "betterave",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/Betterave_YFrQNVD.jpg",
+    "prix": "1.752",
+    "unite": "kg",
+    "stock": 193,
+    "origine": "Kairouan",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.063Z",
+    "date_maj": "2026-10-01T22:26:52.156Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 21,
+  "fields": {
+    "categorie": 1,
+    "nom": "Navet",
+    "slug": "navet",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "",
+    "prix": "1.168",
+    "unite": "kg",
+    "stock": 22,
+    "origine": "Jendouba",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.065Z",
+    "date_maj": "2026-09-10T09:12:08.065Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 22,
+  "fields": {
+    "categorie": 1,
+    "nom": "Radis",
+    "slug": "radis",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "",
+    "prix": "0.839",
+    "unite": "botte",
+    "stock": 97,
+    "origine": "Ariana",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.066Z",
+    "date_maj": "2026-09-10T09:12:08.066Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 23,
+  "fields": {
+    "categorie": 1,
+    "nom": "Épinard",
+    "slug": "epinard",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD43.png",
+    "prix": "2.413",
+    "unite": "piece",
+    "stock": 195,
+    "origine": "Manouba",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.068Z",
+    "date_maj": "2026-10-03T18:31:50.778Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 24,
+  "fields": {
+    "categorie": 1,
+    "nom": "Fenouil",
+    "slug": "fenouil",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD_21_GdZlMAl.png",
+    "prix": "1.447",
+    "unite": "piece",
+    "stock": 154,
+    "origine": "Nabeul",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.070Z",
+    "date_maj": "2026-10-01T22:30:56.002Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 25,
+  "fields": {
+    "categorie": 1,
+    "nom": "Artichaut",
+    "slug": "artichaut",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/artichaut_r0hYKfZ.jpg",
+    "prix": "1.679",
+    "unite": "piece",
+    "stock": 82,
+    "origine": "Nabeul",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.071Z",
+    "date_maj": "2026-10-01T22:25:32.231Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 26,
+  "fields": {
+    "categorie": 1,
+    "nom": "Courge (Gara)",
+    "slug": "courge-gara",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "",
+    "prix": "1.029",
+    "unite": "kg",
+    "stock": 175,
+    "origine": "Kairouan",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.073Z",
+    "date_maj": "2026-09-10T09:12:08.073Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 27,
+  "fields": {
+    "categorie": 1,
+    "nom": "Haricot vert (Loubia)",
+    "slug": "haricot-vert-loubia",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD32_xSAs9ly.png",
+    "prix": "3.542",
+    "unite": "kg",
+    "stock": 117,
+    "origine": "Cap Bon",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.075Z",
+    "date_maj": "2026-10-01T22:32:09.207Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 28,
+  "fields": {
+    "categorie": 1,
+    "nom": "Céleri",
+    "slug": "celeri",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD_15_yHGZCDw.png",
+    "prix": "1.058",
+    "unite": "botte",
+    "stock": 91,
+    "origine": "Manouba",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.076Z",
+    "date_maj": "2026-10-01T22:30:38.249Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 29,
+  "fields": {
+    "categorie": 1,
+    "nom": "Petit piment vert doux",
+    "slug": "petit-piment-vert-doux",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "",
+    "prix": "2.761",
+    "unite": "kg",
+    "stock": 111,
+    "origine": "Nabeul",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.078Z",
+    "date_maj": "2026-09-10T09:12:08.078Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 30,
+  "fields": {
+    "categorie": 1,
+    "nom": "Citrouille (Gra3 hlou)",
+    "slug": "citrouille-gra3-hlou",
+    "description": "Légume frais sélectionné auprès des producteurs locaux tunisiens, récolté à maturité pour garantir saveur et fraîcheur.",
+    "image": "produits/PROD9_AQDP03t.png",
+    "prix": "1.349",
+    "unite": "kg",
+    "stock": 88,
+    "origine": "Sfax",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.080Z",
+    "date_maj": "2026-10-01T22:28:08.886Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 31,
+  "fields": {
+    "categorie": 2,
+    "nom": "Orange Maltaise",
+    "slug": "orange-maltaise",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD44.png",
+    "prix": "2.753",
+    "unite": "kg",
+    "stock": 40,
+    "origine": "Cap Bon",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.081Z",
+    "date_maj": "2026-10-04T20:08:00.598Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 32,
+  "fields": {
+    "categorie": 2,
+    "nom": "Clémentine",
+    "slug": "clementine",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD10_XYuOeID.png",
+    "prix": "2.871",
+    "unite": "kg",
+    "stock": 188,
+    "origine": "Nabeul",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.083Z",
+    "date_maj": "2026-10-01T22:28:47.688Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 33,
+  "fields": {
+    "categorie": 2,
+    "nom": "Citron",
+    "slug": "citron",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD8_PE59B9w.png",
+    "prix": "2.566",
+    "unite": "kg",
+    "stock": 146,
+    "origine": "Cap Bon",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.085Z",
+    "date_maj": "2026-10-01T22:27:57.343Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 34,
+  "fields": {
+    "categorie": 2,
+    "nom": "Pomme",
+    "slug": "pomme",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "",
+    "prix": "4.703",
+    "unite": "kg",
+    "stock": 123,
+    "origine": "Kasserine",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.086Z",
+    "date_maj": "2026-09-10T09:12:08.087Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 35,
+  "fields": {
+    "categorie": 2,
+    "nom": "Poire",
+    "slug": "poire",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "",
+    "prix": "4.503",
+    "unite": "kg",
+    "stock": 171,
+    "origine": "Kasserine",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.088Z",
+    "date_maj": "2026-09-10T09:12:08.088Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 36,
+  "fields": {
+    "categorie": 2,
+    "nom": "Banane",
+    "slug": "banane",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD5_3H2hWwT.png",
+    "prix": "2.686",
+    "unite": "kg",
+    "stock": 83,
+    "origine": "Import",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.090Z",
+    "date_maj": "2026-10-01T22:26:11.434Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 37,
+  "fields": {
+    "categorie": 2,
+    "nom": "Fraise",
+    "slug": "fraise",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD19_NxWDWGf.png",
+    "prix": "5.904",
+    "unite": "kg",
+    "stock": 110,
+    "origine": "Kalâa Kebira",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.092Z",
+    "date_maj": "2026-10-01T22:31:46.441Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 38,
+  "fields": {
+    "categorie": 2,
+    "nom": "Raisin",
+    "slug": "raisin",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD42.png",
+    "prix": "3.016",
+    "unite": "kg",
+    "stock": 122,
+    "origine": "Grombalia",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.094Z",
+    "date_maj": "2026-10-03T18:29:21.104Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 39,
+  "fields": {
+    "categorie": 2,
+    "nom": "Pastèque (Dallaa)",
+    "slug": "pasteque-dallaa",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD51.png",
+    "prix": "7.247",
+    "unite": "piece",
+    "stock": 153,
+    "origine": "Kairouan",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.095Z",
+    "date_maj": "2026-10-04T20:16:04.575Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 40,
+  "fields": {
+    "categorie": 2,
+    "nom": "Melon (Bittikh)",
+    "slug": "melon-bittikh",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD_29_McUPsXn.png",
+    "prix": "3.166",
+    "unite": "piece",
+    "stock": 144,
+    "origine": "Kairouan",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.097Z",
+    "date_maj": "2026-10-01T22:30:00.005Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 41,
+  "fields": {
+    "categorie": 2,
+    "nom": "Pêche",
+    "slug": "peche",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "",
+    "prix": "5.073",
+    "unite": "kg",
+    "stock": 91,
+    "origine": "Cap Bon",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.099Z",
+    "date_maj": "2026-09-10T09:12:08.099Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 42,
+  "fields": {
+    "categorie": 2,
+    "nom": "Abricot",
+    "slug": "abricot",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/abricot.png",
+    "prix": "4.533",
+    "unite": "kg",
+    "stock": 184,
+    "origine": "Cap Bon",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.100Z",
+    "date_maj": "2026-09-12T11:47:40.227Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 43,
+  "fields": {
+    "categorie": 2,
+    "nom": "Figue de Barbarie (Handhi)",
+    "slug": "figue-de-barbarie-handhi",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD33_uwYHmbS.png",
+    "prix": "2.570",
+    "unite": "kg",
+    "stock": 101,
+    "origine": "Kasserine",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.102Z",
+    "date_maj": "2026-10-01T22:31:16.786Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 44,
+  "fields": {
+    "categorie": 2,
+    "nom": "Figue fraîche",
+    "slug": "figue-fraiche",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD22_8MQOvFt.png",
+    "prix": "7.800",
+    "unite": "kg",
+    "stock": 134,
+    "origine": "Djebba",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.104Z",
+    "date_maj": "2026-10-01T22:31:31.037Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 45,
+  "fields": {
+    "categorie": 2,
+    "nom": "Grenade (Rmen)",
+    "slug": "grenade-rmen",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD25_2B6bT8t.png",
+    "prix": "4.048",
+    "unite": "kg",
+    "stock": 28,
+    "origine": "Testour",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.105Z",
+    "date_maj": "2026-10-01T22:32:21.986Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 46,
+  "fields": {
+    "categorie": 2,
+    "nom": "Datte Deglet Nour",
+    "slug": "datte-deglet-nour",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD17_AoeHtG7.png",
+    "prix": "16.389",
+    "unite": "kg",
+    "stock": 165,
+    "origine": "Kébili",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.107Z",
+    "date_maj": "2026-10-01T22:29:37.576Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 47,
+  "fields": {
+    "categorie": 2,
+    "nom": "Nèfle (Mesmari)",
+    "slug": "nefle-mesmari",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD47.png",
+    "prix": "4.636",
+    "unite": "kg",
+    "stock": 53,
+    "origine": "Cap Bon",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.109Z",
+    "date_maj": "2026-10-04T20:12:39.164Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 48,
+  "fields": {
+    "categorie": 2,
+    "nom": "Oignon botte",
+    "slug": "Oignon",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD46.png",
+    "prix": "2.442",
+    "unite": "piece",
+    "stock": 59,
+    "origine": "Nabeul",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.110Z",
+    "date_maj": "2026-10-04T20:11:54.273Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 49,
+  "fields": {
+    "categorie": 2,
+    "nom": "Pamplemousse",
+    "slug": "pamplemousse",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD48.png",
+    "prix": "2.791",
+    "unite": "kg",
+    "stock": 39,
+    "origine": "Cap Bon",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.112Z",
+    "date_maj": "2026-10-04T20:14:06.246Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 50,
+  "fields": {
+    "categorie": 2,
+    "nom": "Coing",
+    "slug": "coing",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale.",
+    "image": "produits/PROD_16_jBXJpd3.png",
+    "prix": "3.274",
+    "unite": "kg",
+    "stock": 176,
+    "origine": "Hammamet",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-10T09:12:08.114Z",
+    "date_maj": "2026-10-01T22:28:21.255Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 51,
+  "fields": {
+    "categorie": 3,
+    "nom": "Loup de mer",
+    "slug": "loup-de-mer",
+    "description": "",
+    "image": "",
+    "prix": "25.000",
+    "unite": "kg",
+    "stock": 30,
+    "origine": "",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-24T09:25:05.216Z",
+    "date_maj": "2026-09-24T09:25:05.216Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 52,
+  "fields": {
+    "categorie": 3,
+    "nom": "Sardine",
+    "slug": "sardine",
+    "description": "",
+    "image": "",
+    "prix": "8.000",
+    "unite": "kg",
+    "stock": 30,
+    "origine": "",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-24T09:25:05.218Z",
+    "date_maj": "2026-09-24T09:25:05.218Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 53,
+  "fields": {
+    "categorie": 4,
+    "nom": "Escalope de poulet",
+    "slug": "escalope-de-poulet",
+    "description": "",
+    "image": "",
+    "prix": "18.000",
+    "unite": "kg",
+    "stock": 30,
+    "origine": "",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-24T09:25:05.220Z",
+    "date_maj": "2026-09-24T09:25:05.220Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 54,
+  "fields": {
+    "categorie": 4,
+    "nom": "Viande bovine",
+    "slug": "viande-bovine",
+    "description": "",
+    "image": "",
+    "prix": "35.000",
+    "unite": "kg",
+    "stock": 30,
+    "origine": "",
+    "bio": false,
+    "disponible": true,
+    "date_ajout": "2026-09-24T09:25:05.222Z",
+    "date_maj": "2026-09-24T09:25:05.222Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.produit",
+  "pk": 55,
+  "fields": {
+    "categorie": 2,
+    "nom": "Ananas",
+    "slug": "ananas",
+    "description": "Fruit frais et savoureux, cueilli à point dans les vergers tunisiens pour une qualité optimale",
+    "image": "produits/PROD40.png",
+    "prix": "3.000",
+    "unite": "piece",
+    "stock": 0,
+    "origine": "Nabeul",
+    "bio": true,
+    "disponible": true,
+    "date_ajout": "2026-10-03T18:10:36.269Z",
+    "date_maj": "2026-10-03T18:10:36.269Z",
+    "note_moyenne": "0.00",
+    "nb_avis": 0
+  }
+},
+{
+  "model": "boutique.imageaccueil",
+  "pk": 1,
+  "fields": {
+    "titre": "IMG",
+    "image": "accueil_slides/image_fE.png",
+    "ordre": 1,
+    "actif": true
+  }
+},
+{
+  "model": "boutique.moyenpaiement",
+  "pk": 5,
+  "fields": {
+    "nom": "D17",
+    "logo": "paiements/images_gIXdTay.png",
+    "ordre": 1,
+    "actif": true
+  }
+},
+{
+  "model": "boutique.moyenpaiement",
+  "pk": 6,
+  "fields": {
+    "nom": "VISA",
+    "logo": "paiements/visa_IJdFZxK.png",
+    "ordre": 2,
+    "actif": true
+  }
+}
+]
