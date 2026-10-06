@@ -5,9 +5,11 @@ from django.conf.urls.static import static
 from django.templatetags.static import static as fichier_static
 from django.views.generic import RedirectView
 from comptes import views as comptes_views
+from .sante import sante
 
 urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url=fichier_static('img/favicon.ico'), permanent=False)),
+    path('sante/', sante, name='sante'),
     path('admin/', admin.site.urls),
     path('gestion/', include('dashboard.urls')),
     path('compte/', include('comptes.urls')),

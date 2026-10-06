@@ -3,11 +3,12 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from . import fidelite
+from . import catalogue, fidelite
 from .commandes import SESSION_COUPON, ErreurCommande, calculer_recapitulatif, creer_commande, telephone_verifie
 from .forms import AvisForm, CommandeForm
 from .models import Avis, Categorie, Commande, Coupon, ImageAccueil, LigneCommande, MoyenPaiement, Produit
@@ -17,49 +18,53 @@ from .panier import Panier
 
 
 def accueil(request):
-    categories = Categorie.objects.all()
-    produits_vedette = Produit.objects.filter(disponible=True).order_by('-date_ajout')[:8]
-    slides = ImageAccueil.objects.filter(actif=True)
-    moyens_paiement = MoyenPaiement.objects.filter(actif=True)
     return render(request, 'boutique/accueil.html', {
-        'categories': categories,
-        'produits_vedette': produits_vedette,
-        'slides': slides,
-        'moyens_paiement': moyens_paiement,
+        'categories': catalogue.categories(),
+        'produits_vedette': catalogue.produits_vedette(),
+        'slides': catalogue.slides_actifs(),
+        'moyens_paiement': catalogue.moyens_paiement_actifs(),
     })
 
 
+def _categorie_par_slug(slug):
+    for categorie in catalogue.categories():
+        if categorie.slug == slug:
+            return categorie
+    raise Http404("Catégorie introuvable.")
+
+
 def liste_produits(request):
-    produits = Produit.objects.filter(disponible=True)
     categorie_slug = request.GET.get('categorie')
     type_produit = request.GET.get('type')
-    q = request.GET.get('q')
-    categorie_active = None
+    q = (request.GET.get('q') or '').strip()
+    categorie_active = _categorie_par_slug(categorie_slug) if categorie_slug else None
+    if type_produit not in dict(Categorie.TYPE_CHOICES):
+        type_produit = None
 
-    if categorie_slug:
-        categorie_active = get_object_or_404(Categorie, slug=categorie_slug)
-        produits = produits.filter(categorie=categorie_active)
-    types_valides = dict(Categorie.TYPE_CHOICES)
-    if type_produit in types_valides:
-        produits = produits.filter(categorie__type_produit=type_produit)
-    if q:
+    if q:   # une recherche libre n'est pas mise en cache
+        produits = Produit.objects.filter(disponible=True).select_related('categorie')
+        if categorie_active:
+            produits = produits.filter(categorie=categorie_active)
+        if type_produit:
+            produits = produits.filter(categorie__type_produit=type_produit)
         produits = produits.filter(Q(nom__icontains=q) | Q(description__icontains=q))
+    else:
+        produits = catalogue.produits(categorie_slug if categorie_active else None, type_produit)
 
     return render(request, 'boutique/liste_produits.html', {
         'produits': produits,
-        'categories': Categorie.objects.all(),
+        'categories': catalogue.categories(),
         'categorie_active': categorie_active,
         'type_actif': type_produit,
-        'q': q or '',
+        'q': q,
     })
 
 
 def categorie_detail(request, slug):
-    categorie = get_object_or_404(Categorie, slug=slug)
-    produits = categorie.produits.filter(disponible=True)
+    categorie = _categorie_par_slug(slug)
     return render(request, 'boutique/liste_produits.html', {
-        'produits': produits,
-        'categories': Categorie.objects.all(),
+        'produits': catalogue.produits(categorie.slug, None),
+        'categories': catalogue.categories(),
         'categorie_active': categorie,
         'type_actif': None,
         'q': '',
@@ -87,9 +92,7 @@ def _peut_noter(user, produit):
 
 def produit_detail(request, slug):
     produit = get_object_or_404(Produit, slug=slug)
-    produits_similaires = Produit.objects.filter(
-        categorie=produit.categorie, disponible=True
-    ).exclude(pk=produit.pk)[:4]
+    produits_similaires = catalogue.similaires(produit)
 
     avis = list(produit.avis.filter(visible=True).select_related('client')[:50])
     for a in avis:

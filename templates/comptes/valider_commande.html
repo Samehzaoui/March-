@@ -4,10 +4,11 @@
 <div class="container py-5" style="max-width:480px;">
   <div class="bg-white p-4 rounded-4 shadow-sm">
     <div class="text-center mb-3">
-      <div style="font-size:2.5rem;">✅</div>
+      <div class="mb-2">{% include 'partials/_valide.html' with taille=64 %}</div>
       <h1 class="h4 fw-bold mb-1">Valider la commande #{{ commande.id }}</h1>
       <p class="text-muted small mb-0">Votre commande de <strong>{{ commande.total }} DT</strong> est confirmée. Saisissez le code reçu par SMS pour la valider.</p>
     </div>
+    {% if sms_mode_test %}<div class="alert alert-info py-2 small">🧪 <strong>Mode test</strong> : aucun vrai SMS n'est envoyé. Le code s'affiche dans le terminal du serveur (<code>runserver</code>).</div>{% endif %}
     {% if erreur %}<div class="alert alert-danger py-2 small">{{ erreur }}</div>{% endif %}
     <form method="post">
       {% csrf_token %}

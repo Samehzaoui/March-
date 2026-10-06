@@ -14,7 +14,7 @@
       <div><strong>Commande #{{ c.id }}</strong> <span class="text-muted small">— {{ c.date_commande|date:"d/m/Y H:i" }}</span></div>
       <div>
         <span class="badge bg-secondary">{{ c.get_statut_display }}</span>
-        {% if c.validee_par_client %}<span class="badge badge-brand">✓ {% if c.mode_paiement != 'livraison' %}Validée{% else %}Validée par SMS{% endif %}</span>{% endif %}
+        {% if c.validee_par_client %}{% if c.mode_paiement != 'livraison' %}{% include 'partials/_pastille_valide.html' with texte='Validée' %}{% else %}{% include 'partials/_pastille_valide.html' with texte='Validée par SMS' %}{% endif %}{% endif %}
         {% if c.mode_paiement != 'livraison' %}<span class="badge {% if c.statut_paiement == 'paye' %}badge-brand{% else %}bg-warning text-dark{% endif %}">{{ c.get_statut_paiement_display }}</span>{% endif %}
       </div>
     </div>

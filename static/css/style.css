@@ -568,3 +568,14 @@ a:hover {
 .mode-paiement:hover { border-color: var(--c-teal); }
 .mode-paiement:has(input:checked) { border-color: var(--c-teal); background: var(--c-teal-light); }
 .badge-points { background: #fff4d6; color: #7a5a00; }
+
+/* ---------- Icônes : validation (coche verte ronde) et coupon (ticket) ---------- */
+.icone-valide { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+.pastille-valide {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .18rem .65rem .18rem .3rem; border-radius: 999px;
+    background: #e9f9e2; color: #157a00; border: 1px solid #c6ecb7;
+    font-size: .75rem; font-weight: 600; white-space: nowrap;
+}
+.icone-coupon { height: 1.35em; width: auto; vertical-align: -.3em; }
+.icone-coupon-titre { height: 38px; width: auto; vertical-align: middle; margin-right: .35rem; }

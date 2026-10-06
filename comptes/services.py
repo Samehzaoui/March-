@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.crypto import constant_time_compare, salted_hmac
 
 from .models import CodeSMS
-from .sms import SMSError, envoyer_sms
+from .sms import SMSError, dernier_sms_test, envoyer_sms_differe
 
 DELAI_RENVOI_SECONDES = 60      # 1 code max par minute (même numéro, même objet)
 MAX_ENVOIS_PAR_HEURE = 5        # 5 codes max par heure et par numéro
@@ -67,7 +67,7 @@ def envoyer_code(telephone, objet, ttl_minutes, construire_message, commande=Non
         expire_le=maintenant + timedelta(minutes=ttl_minutes),
     )
     try:
-        envoyer_sms(telephone, construire_message(code))
+        envoyer_sms_differe(telephone, construire_message(code), entree.pk)
     except SMSError:
         entree.delete()
         return Resultat(False, "Impossible d'envoyer le SMS pour le moment. Réessayez dans quelques minutes.")
@@ -136,3 +136,9 @@ def verifier_code_commande(commande, code):
     if telephone is None:
         return False, "Le numéro de téléphone de cette commande est invalide."
     return verifier_code(telephone, CodeSMS.OBJET_COMMANDE, code, commande)
+
+
+def dernier_sms_test_commande(commande):
+    """Mode test uniquement : dernier SMS « envoyé » (affiché dans le terminal) pour cette commande."""
+    telephone = normaliser_telephone(commande.telephone)
+    return dernier_sms_test(telephone) if telephone else None

@@ -54,7 +54,7 @@
           <td><a href="{% url 'dashboard:commande_detail' c.pk %}">#{{ c.id }}</a></td>
           <td>{{ c.nom_client }}</td>
           <td>{{ c.telephone }}</td>
-          <td><span class="badge bg-secondary">{{ c.get_statut_display }}</span>{% if c.validee_par_client %} <span class="badge badge-brand">✓ validée</span>{% endif %}{% if c.mode_paiement != 'livraison' %} <span class="badge {% if c.statut_paiement == 'paye' %}badge-brand{% else %}bg-warning text-dark{% endif %}">{{ c.get_statut_paiement_display }}</span>{% endif %}</td>
+          <td><span class="badge bg-secondary">{{ c.get_statut_display }}</span>{% if c.validee_par_client %} {% include 'partials/_pastille_valide.html' with texte='Validée' %}{% endif %}{% if c.mode_paiement != 'livraison' %} <span class="badge {% if c.statut_paiement == 'paye' %}badge-brand{% else %}bg-warning text-dark{% endif %}">{{ c.get_statut_paiement_display }}</span>{% endif %}</td>
           <td>{{ c.total }} DT</td>
           <td>{{ c.date_commande|date:"d/m/Y H:i" }}</td>
         </tr>

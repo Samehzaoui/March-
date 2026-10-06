@@ -43,6 +43,11 @@ tous types de fruits et légumes en ligne, avec un espace d'administration
 - **Paiement en ligne** Konnect et Flouci, en plus du paiement à la livraison
 - Détails et configuration : `GUIDE_PAIEMENT_FIDELITE.md`
 
+### Performance et robustesse (nouveau)
+- Cache du catalogue (Redis) qui se vide tout seul, et **envoi des SMS / emails en arrière-plan** (Celery)
+- Optionnel : sans `REDIS_URL`, le site fonctionne exactement comme avant
+- Page de supervision `/sante/` ; détails dans `GUIDE_PERFORMANCE.md`
+
 ### Comptes clients (nouveau)
 - **Page unique de connexion / inscription** à onglets animés : SMS, Email, Inscription (`/compte/connexion/`)
 - Inscription et connexion par **email + mot de passe**, mot de passe oublié

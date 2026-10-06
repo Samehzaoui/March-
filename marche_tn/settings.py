@@ -78,6 +78,7 @@ TEMPLATES = [
                 'boutique.context_processors.moyens_paiement_global',
                 'comptes.context_processors.commandes_a_valider',
                 'comptes.context_processors.oauth_disponibles',
+                'comptes.context_processors.sms_mode_test',
             ],
         },
     },
@@ -97,6 +98,10 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT'),
+        # Connexions persistantes : à régler à 60 en production (0 = désactivé, recommandé avec « runserver »)
+        'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=0, cast=int),
+        'CONN_HEALTH_CHECKS': True,
+        'OPTIONS': {'connect_timeout': 5},
     }
 }
 
@@ -174,8 +179,6 @@ SOCIALACCOUNT_LOGIN_ON_GET = True      # clic direct sur le bouton, sans page de
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
 
-# Emails (vérification, mot de passe oublié) : affichés dans le terminal en développement
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 
 # Clés OAuth : à renseigner dans le fichier .env (voir .env.example)
 SOCIALACCOUNT_PROVIDERS = {
@@ -230,6 +233,50 @@ KONNECT_ENV = config('KONNECT_ENV', default='sandbox')       # "sandbox" (test) 
 
 FLOUCI_PUBLIC_KEY = config('FLOUCI_PUBLIC_KEY', default='')
 FLOUCI_PRIVATE_KEY = config('FLOUCI_PRIVATE_KEY', default='')
+
+# ---------------------------------------------------------------
+# Performance et robustesse : cache Redis + tâches de fond Celery (voir GUIDE_PERFORMANCE.md)
+# Sans REDIS_URL, tout fonctionne comme avant (cache en mémoire, envois immédiats) : aucun Redis à installer pour développer.
+# ---------------------------------------------------------------
+REDIS_URL = config('REDIS_URL', default='')                       # ex : redis://127.0.0.1:6379/0
+CACHE_VERSION = config('CACHE_VERSION', default=1, cast=int)      # à augmenter après un déploiement qui modifie les modèles
+CACHE_TTL_CATALOGUE = config('CACHE_TTL_CATALOGUE', default=300, cast=int)
+
+if REDIS_URL:
+    CACHES = {'default': {
+        'BACKEND': 'boutique.cache_backend.RedisCacheTolerant',
+        'LOCATION': REDIS_URL,
+        'KEY_PREFIX': '9offty',
+        'VERSION': CACHE_VERSION,
+        'OPTIONS': {'socket_connect_timeout': 1, 'socket_timeout': 2},
+    }}
+else:
+    CACHES = {'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': '9offty',
+        'VERSION': CACHE_VERSION,
+    }}
+
+_FILE_ATTENTE = config('CELERY_BROKER_URL', default='') or REDIS_URL
+CELERY_BROKER_URL = _FILE_ATTENTE or 'memory://'
+CELERY_TASK_ALWAYS_EAGER = config('CELERY_EAGER', default=not _FILE_ATTENTE, cast=bool)   # True = exécution immédiate
+CELERY_TASK_IGNORE_RESULT = True
+CELERY_TASK_ACKS_LATE = True                 # une tâche n'est retirée de la file qu'une fois terminée
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BROKER_TRANSPORT_OPTIONS = {'socket_connect_timeout': 2, 'visibility_timeout': 3600}
+CELERY_TIMEZONE = TIME_ZONE
+
+# Emails : EMAIL_BACKEND (.env) désigne le VRAI mode d'envoi (console, SMTP...). Quand la file d'attente est active,
+# Django passe par un relais qui confie l'envoi à Celery.
+EMAIL_BACKEND_REEL = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_BACKEND = EMAIL_BACKEND_REEL if CELERY_TASK_ALWAYS_EAGER else 'comptes.emailing.EmailAsyncBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
 
 # Authentification - espace administrateur (dashboard)
 LOGIN_URL = 'dashboard:login'

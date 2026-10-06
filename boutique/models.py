@@ -80,6 +80,8 @@ class Produit(models.Model):
         moyenne = Decimal(str(agg['moyenne'] or 0)).quantize(Decimal('0.01'))
         Produit.objects.filter(pk=self.pk).update(note_moyenne=moyenne, nb_avis=agg['nb'] or 0)
         self.note_moyenne, self.nb_avis = moyenne, agg['nb'] or 0
+        from . import catalogue   # import tardif : catalogue importe ces modèles
+        catalogue.invalider()
 
     @property
     def en_stock(self):

@@ -3,13 +3,13 @@
 {% block content %}
 <div class="container py-5 text-center">
   {% if commande.statut_paiement == 'paye' %}
-    <div class="mb-3" style="font-size:4rem;">✅</div>
+    <div class="mb-3">{% include 'partials/_valide.html' with taille=96 %}</div>
     <h1 class="h3 fw-bold text-brand">Merci {{ commande.nom_client }} ! Paiement reçu.</h1>
   {% elif commande.statut_paiement == 'en_attente' or commande.statut_paiement == 'echoue' %}
     <div class="mb-3" style="font-size:4rem;">{% if commande.statut_paiement == 'echoue' %}⚠️{% else %}⏳{% endif %}</div>
     <h1 class="h3 fw-bold text-brand-navy">Commande #{{ commande.id }} enregistrée : paiement {% if commande.statut_paiement == 'echoue' %}non abouti{% else %}en attente{% endif %}</h1>
   {% else %}
-    <div class="mb-3" style="font-size:4rem;">✅</div>
+    <div class="mb-3">{% include 'partials/_valide.html' with taille=96 %}</div>
     <h1 class="h3 fw-bold text-brand">Merci {{ commande.nom_client }} !</h1>
   {% endif %}
 

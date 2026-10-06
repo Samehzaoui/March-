@@ -1,6 +1,7 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
 {% block title %}{{ titre }}{% endblock %}
-{% block header %}🏷️ {{ titre }}{% endblock %}
+{% block header %}<img src="{% static 'img/coupon.svg' %}" alt="" class="icone-coupon-titre">{{ titre }}{% endblock %}
 {% block dashboard_content %}
 
 <div class="card stat-card p-4" style="max-width:680px;">

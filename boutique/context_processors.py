@@ -1,21 +1,12 @@
-from .models import Categorie, MoyenPaiement
+from . import catalogue
 
 
 def types_categories(request):
-    """Rend disponible partout la liste des types de produits utilisés,
-    pour construire le menu déroulant 'Tous les produits' dans la navbar."""
-    types_utilises = (
-        Categorie.objects.values_list('type_produit', flat=True).distinct()
-    )
-    choices_dict = dict(Categorie.TYPE_CHOICES)
-    types_disponibles = [
-        (code, choices_dict.get(code, code)) for code in types_utilises
-    ]
-    types_disponibles.sort(key=lambda t: t[1])
-    return {'types_produits_nav': types_disponibles}
+    """Types de produits utilisés, pour le menu déroulant « Tous les produits » de la barre de navigation
+    (données en cache : plus de requête SQL à chaque page)."""
+    return {'types_produits_nav': catalogue.types_produits_nav()}
 
 
 def moyens_paiement_global(request):
-    """Rend les moyens de paiement actifs disponibles sur toutes les pages
-    (barre défilante affichée dans le template de base)."""
-    return {'moyens_paiement_global': MoyenPaiement.objects.filter(actif=True)}
+    """Moyens de paiement actifs, affichés dans la barre défilante du bas de page (données en cache)."""
+    return {'moyens_paiement_global': catalogue.moyens_paiement_actifs()}

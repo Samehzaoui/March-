@@ -73,7 +73,7 @@
     <div class="card stat-card p-4">
       <h2 class="h6 fw-bold mb-3">Changer le statut</h2>
       {% if commande.validee_par_client %}
-        <div class="alert alert-success py-2 small">✅ {% if commande.mode_paiement != 'livraison' and commande.statut_paiement == 'paye' %}Validée par le paiement en ligne.{% else %}Validée par le client le {{ commande.date_validation_client|date:"d/m/Y H:i" }} (code SMS).{% endif %}</div>
+        <div class="alert alert-success py-2 small d-flex align-items-center gap-2">{% include 'partials/_valide.html' with taille=24 %}<span>{% if commande.mode_paiement != 'livraison' and commande.statut_paiement == 'paye' %}Validée par le paiement en ligne.{% else %}Validée par le client le {{ commande.date_validation_client|date:"d/m/Y H:i" }} (code SMS).{% endif %}</span></div>
       {% elif commande.statut == 'confirmee' and commande.validation_sms_requise %}
         <div class="alert alert-warning py-2 small">⏳ En attente du code SMS saisi par le client. La livraison est bloquée tant que le code n'est pas validé.</div>
         <form method="post" class="mb-3">
@@ -83,6 +83,15 @@
         </form>
       {% else %}
         <p class="small text-muted">{% if commande.validation_sms_requise %}Le code SMS est envoyé automatiquement au client quand vous passez la commande à « Confirmée ».{% endif %}</p>
+      {% endif %}
+      {% if sms_test and commande.statut == 'confirmee' and not commande.validee_par_client %}
+      <div class="alert alert-info small">
+        🧪 <strong>Mode test</strong> : aucun vrai SMS n'est envoyé.
+        {% if sms_test.message %}Dernier SMS préparé pour {{ commande.telephone }} :
+          <div class="mt-2 p-2 bg-white border rounded font-monospace">{{ sms_test.message }}</div>
+        {% else %}Le code apparaît dans le terminal où tourne <code>runserver</code>. Cliquez sur « Renvoyer le code SMS » pour l'afficher ici.{% endif %}
+        <div class="mt-2 text-muted">Pour envoyer de vrais SMS, configurez <code>SMS_BACKEND=twilio</code> dans <code>.env</code> (voir GUIDE_PAIEMENT_FIDELITE.md).</div>
+      </div>
       {% endif %}
       <form method="post">
         {% csrf_token %}

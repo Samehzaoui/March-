@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Finaliser la commande{% endblock %}
 {% block content %}
 <div class="container py-4">
@@ -51,7 +52,7 @@
         {% if recap.coupon %}
         <div class="recap-ligne recap-remise"><span>Code {{ recap.coupon.code }}</span><span>- {{ recap.remise_coupon }} DT</span></div>
         {% else %}
-        <div class="small mt-1"><a href="{% url 'boutique:panier' %}">🏷️ J'ai un code promo</a></div>
+        <div class="small mt-1"><a href="{% url 'boutique:panier' %}"><img src="{% static 'img/coupon-mini.svg' %}" alt="" class="icone-coupon"> J'ai un code promo</a></div>
         {% endif %}
 
         {% if recap.points_possibles %}

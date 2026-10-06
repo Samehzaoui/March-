@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum, Count, Q
@@ -351,7 +352,10 @@ def commande_detail(request, pk):
                 else:
                     messages.warning(request, f"Le SMS n'a pas été envoyé : {resultat.message} Utilisez « Renvoyer le code SMS » ci-dessous.")
             return redirect('dashboard:commande_detail', pk=pk)
-    return render(request, 'dashboard/commande_detail.html', {'commande': commande})
+    sms_test = None
+    if settings.DEBUG and settings.SMS_BACKEND == 'console':
+        sms_test = {'message': sms_services.dernier_sms_test_commande(commande)}
+    return render(request, 'dashboard/commande_detail.html', {'commande': commande, 'sms_test': sms_test})
 
 
 # ---------- Registre des clients ----------

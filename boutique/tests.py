@@ -573,7 +573,7 @@ class TestDashboardCommandes(Base):
 
     def test_commande_payee_en_ligne_confirmee_sans_sms(self):
         c = self.commande(mode_paiement='konnect', statut_paiement='paye')
-        with mock.patch('comptes.services.envoyer_sms') as sms:
+        with mock.patch('comptes.sms.envoyer_sms') as sms:
             self.changer(c, 'confirmee')
             sms.assert_not_called()
         c.refresh_from_db()
@@ -585,7 +585,7 @@ class TestDashboardCommandes(Base):
 
     def test_commande_livraison_garde_le_flux_sms(self):
         c = self.commande()
-        with mock.patch('comptes.services.envoyer_sms') as sms:
+        with mock.patch('comptes.sms.envoyer_sms') as sms:
             self.changer(c, 'confirmee')
             sms.assert_called_once()
         self.changer(c, 'livree')                        # bloqué tant que le client n'a pas saisi le code
@@ -699,3 +699,207 @@ class TestParcoursComplet(Base):
         r = c.post(reverse('dashboard:login'), {'username': 'admin', 'password': 'x'})
         self.assertEqual(r.status_code, 302)
         self.assertEqual(c.get(reverse('dashboard:accueil')).status_code, 200)
+
+
+# ----------------------------------------------------------------------------- MODE TEST SMS + ICÔNES
+class TestModeTestSms(Base):
+    def setUp(self):
+        super().setUp()
+        self.client.force_login(self.staff)
+
+    def confirmer(self, c):
+        return self.client.post(reverse('dashboard:commande_detail', args=[c.pk]), {'statut': 'confirmee'}, follow=True)
+
+    @override_settings(DEBUG=True, SMS_BACKEND='console')
+    def test_le_code_est_visible_dans_le_dashboard_en_mode_test(self):
+        c = self.commande()
+        page = self.confirmer(c).content.decode()
+        self.assertIn('Mode test', page)
+        self.assertRegex(page, r'Code de validation: \d{6}')          # le code du SMS est affiché
+
+    @override_settings(DEBUG=True, SMS_BACKEND='console')
+    def test_pas_de_code_affiche_une_fois_la_commande_validee(self):
+        c = self.commande()
+        self.confirmer(c)
+        Commande.objects.filter(pk=c.pk).update(validee_par_client=True)
+        self.assertNotIn('Mode test', self.client.get(reverse('dashboard:commande_detail', args=[c.pk])).content.decode())
+
+    @override_settings(DEBUG=False, SMS_BACKEND='console')
+    def test_jamais_affiche_hors_debug(self):
+        c = self.commande()
+        page = self.confirmer(c).content.decode()
+        self.assertNotIn('Mode test', page)
+        self.assertNotRegex(page, r'Code de validation: \d{6}')
+
+    @override_settings(DEBUG=True, SMS_BACKEND='locmem')
+    def test_jamais_affiche_avec_un_vrai_backend(self):
+        c = self.commande()
+        self.assertNotIn('Mode test', self.confirmer(c).content.decode())
+
+    @override_settings(DEBUG=True, SMS_BACKEND='console')
+    def test_avertissement_cote_client_sans_afficher_le_code(self):
+        c = self.commande()
+        self.confirmer(c)
+        client = self.client_class(); client.force_login(self.client_sms)
+        page = client.get(reverse('comptes:valider_commande', args=[c.pk])).content.decode()
+        self.assertIn('Mode test', page)
+        self.assertNotRegex(page, r'\b\d{6}\b')
+
+
+class TestIcones(Base):
+    def test_coche_et_ticket_utilises_et_fichiers_presents(self):
+        from django.contrib.staticfiles import finders
+        for f in ('img/icone-valide.svg', 'img/coupon.svg', 'img/coupon-mini.svg'):
+            self.assertIsNotNone(finders.find(f), f)
+        c = self.commande(statut='livree', validee_par_client=True)
+        proprio = self.client_class(); proprio.force_login(self.client_sms)
+        page = proprio.get(reverse('boutique:commande_confirmee', args=[c.pk])).content.decode()
+        self.assertNotIn('✅', page)
+        liste = proprio.get(reverse('comptes:mes_commandes')).content.decode()
+        self.assertIn('icone-valide.svg', liste)
+        self.assertNotIn('✓', liste)
+        self.client.force_login(self.staff)
+        dash = self.client.get(reverse('dashboard:coupons_liste')).content.decode()
+        self.assertIn('coupon-mini.svg', dash)
+        self.assertNotIn('🏷️', dash)
+
+
+# ----------------------------------------------------------------------------- CACHE DU CATALOGUE
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
+
+
+class TestCacheCatalogue(Base):
+    def setUp(self):
+        super().setUp()
+        from . import catalogue
+        self.catalogue = catalogue
+        cache.clear()
+
+    def nb_requetes(self, url, client=None):
+        with CaptureQueriesContext(connection) as ctx:
+            r = (client or self.client).get(url)
+        self.assertEqual(r.status_code, 200)
+        return len(ctx), r.content.decode()
+
+    def test_les_pages_catalogue_font_moins_de_requetes_la_deuxieme_fois(self):
+        for url in (reverse('boutique:accueil'), reverse('boutique:liste_produits'),
+                    reverse('boutique:categorie', args=['legumes']), reverse('boutique:liste_produits') + '?type=legume'):
+            with self.subTest(url):
+                cache.clear()
+                premiere, html1 = self.nb_requetes(url)
+                deuxieme, html2 = self.nb_requetes(url)
+                self.assertLess(deuxieme, premiere)
+                self.assertLessEqual(deuxieme, 3)         # session / utilisateur seulement
+                self.assertIn('Tomate', html2) if 'accueil' not in url else None
+
+    def test_un_produit_modifie_apparait_aussitot(self):
+        url = reverse('boutique:liste_produits')
+        self.assertIn('Tomate', self.nb_requetes(url)[1])
+        self.tomate.prix = D('9.990'); self.tomate.save()
+        self.assertIn('9,990', self.nb_requetes(url)[1])
+        Produit.objects.create(categorie=self.cat, nom='Poivron', slug='poivron', prix=D('3'), stock=5)
+        self.assertIn('Poivron', self.nb_requetes(url)[1])
+        self.oignon.delete()
+        self.assertNotIn('Oignon', self.nb_requetes(url)[1])
+        self.tomate.disponible = False; self.tomate.save()
+        self.assertNotIn('Tomate', self.nb_requetes(url)[1])
+
+    def test_categories_et_menu_a_jour(self):
+        self.nb_requetes(reverse('boutique:accueil'))
+        Categorie.objects.create(nom='Fruits', slug='fruits', type_produit='fruit')
+        html = self.nb_requetes(reverse('boutique:accueil'))[1]
+        self.assertIn('Fruits', html)
+        self.assertIn('type=fruit', html)                          # menu « Tous les produits »
+
+    def test_moyens_de_paiement_a_jour(self):
+        from .models import MoyenPaiement
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        logo = SimpleUploadedFile('l.png', b'\x89PNG\r\n\x1a\n', content_type='image/png')
+        m = MoyenPaiement.objects.create(nom='Visa', logo=logo, actif=True)
+        self.assertIn('alt="Visa"', self.nb_requetes(reverse('boutique:accueil'))[1])
+        m.actif = False; m.save()
+        self.assertNotIn('alt="Visa"', self.nb_requetes(reverse('boutique:accueil'))[1])
+
+    def test_note_moyenne_mise_a_jour_apres_un_avis(self):
+        url = reverse('boutique:liste_produits')
+        self.assertNotIn('★', self.nb_requetes(url)[1])
+        self.commande(statut='livree', lignes=((2, 1),))
+        self.client.force_login(self.client_sms)
+        self.client.post(reverse('boutique:avis_poster', args=[self.tomate.slug]), {'note': '5', 'commentaire': ''})
+        self.assertIn('★★★★★', self.nb_requetes(url)[1])
+
+    def test_recherche_jamais_en_cache(self):
+        url = reverse('boutique:liste_produits') + '?q=tom'
+        self.assertIn('Tomate', self.nb_requetes(url)[1])
+        Produit.objects.filter(pk=self.tomate.pk).update(nom='Pasteque')          # modification « directe » : sans signal
+        self.assertNotIn('Tomate', self.nb_requetes(url)[1])
+
+    def test_categorie_inconnue_donne_404(self):
+        self.assertEqual(self.client.get(reverse('boutique:categorie', args=['nope'])).status_code, 404)
+        self.assertEqual(self.client.get(reverse('boutique:liste_produits') + '?categorie=nope').status_code, 404)
+
+    def test_aucune_donnee_de_visiteur_dans_le_cache(self):
+        """Le jeton CSRF et l'état de connexion de l'un ne doivent jamais se retrouver chez l'autre."""
+        url = reverse('boutique:accueil')
+        anonyme = self.client_class()
+        connecte = self.client_class(); connecte.force_login(self.client_sms)
+        h_anonyme = anonyme.get(url).content.decode()               # remplit le cache
+        h_connecte = connecte.get(url).content.decode()             # lit le cache
+        import re
+        jeton = lambda h: set(re.findall(r'name="csrfmiddlewaretoken" value="([^"]+)"', h))
+        self.assertTrue(jeton(h_anonyme))
+        self.assertFalse(jeton(h_anonyme) & jeton(h_connecte))
+        self.assertIn('Mon compte', h_connecte)
+        self.assertNotIn('Mon compte', h_anonyme)
+        autre = self.client_class()
+        self.assertFalse(jeton(autre.get(url).content.decode()) & jeton(h_connecte))
+
+    def test_version_perdue_reste_coherente(self):
+        self.nb_requetes(reverse('boutique:liste_produits'))
+        cache.delete(self.catalogue.CLE_VERSION)                    # Redis vidé / clé évincée
+        self.tomate.prix = D('7.000'); self.tomate.save()
+        self.assertIn('7,000', self.nb_requetes(reverse('boutique:liste_produits'))[1])
+
+
+class TestCacheRedisTolerant(TestCase):
+    """Redis arrêté : le site continue de fonctionner, sans cache."""
+
+    def setUp(self):
+        from .cache_backend import RedisCacheTolerant
+        self.cache = RedisCacheTolerant('redis://127.0.0.1:1/0', {'OPTIONS': {'socket_connect_timeout': 1}})
+
+    def test_aucune_exception_et_valeurs_neutres(self):
+        c = self.cache
+        self.assertIsNone(c.get('a'))
+        self.assertEqual(c.get('a', 'defaut'), 'defaut')
+        self.assertIsNone(c.set('a', 1))
+        self.assertTrue(c.add('a', 1))                 # le verrou anti-spam ne bloque jamais quand Redis est arrêté
+        self.assertFalse(c.delete('a'))
+        self.assertEqual(c.get_many(['a', 'b']), {})
+        self.assertFalse(c.has_key('a'))
+        self.assertIsNone(c.incr('a'))
+        self.assertEqual(c.get_or_set('x', lambda: 5), 5)
+
+    def test_le_catalogue_fonctionne_sans_redis(self):
+        with mock.patch('boutique.catalogue.cache', self.cache):
+            from . import catalogue
+            cat = Categorie.objects.create(nom='L', slug='l', type_produit='legume')
+            Produit.objects.create(categorie=cat, nom='Tomate', slug='tomate', prix=D('2'), stock=1)
+            self.assertEqual([p.nom for p in catalogue.produits()], ['Tomate'])
+            catalogue.invalider()                                            # ne lève rien non plus
+
+
+class TestSante(TestCase):
+    def test_sante_ok(self):
+        r = self.client.get(reverse('sante'))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json(), {'base': 'ok', 'cache': 'ok', 'file_attente': 'direct'})
+        self.assertIn('no-store', r.headers['Cache-Control'])
+
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=False)
+    def test_sante_signale_une_file_injoignable(self):
+        from marche_tn import celery_app
+        with mock.patch.object(celery_app, 'connection_for_write', side_effect=OSError('refusé')):
+            r = self.client.get(reverse('sante'))
+        self.assertEqual((r.status_code, r.json()['file_attente']), (503, 'ko'))

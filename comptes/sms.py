@@ -15,6 +15,7 @@ import urllib.parse
 import urllib.request
 
 from django.conf import settings
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,18 @@ class SMSError(Exception):
     """L'envoi du SMS a échoué."""
 
 
+def _cle_test(telephone):
+    return f"sms-test:{telephone}"
+
+
 def _envoyer_console(telephone, message):
     print(f"\n{'=' * 60}\n[SMS vers {telephone}]\n{message}\n{'=' * 60}\n", flush=True)
+    cache.set(_cle_test(telephone), message, 600)   # 10 min : permet de l'afficher dans le dashboard en mode test
+
+
+def dernier_sms_test(telephone):
+    """Dernier SMS « envoyé » en mode console (None sinon). Réservé à l'affichage du mode test."""
+    return cache.get(_cle_test(telephone))
 
 
 def _envoyer_locmem(telephone, message):
@@ -70,3 +81,27 @@ def envoyer_sms(telephone, message):
     if fonction is None:
         raise SMSError(f"Backend SMS inconnu : {nom}")
     fonction(telephone, message)
+
+
+def file_attente_active():
+    """Vrai quand Celery + Redis sont configurés : les SMS partent alors en arrière-plan."""
+    return not getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', True)
+
+
+def envoyer_sms_differe(telephone, message, code_id=None):
+    """Envoie le SMS en arrière-plan si la file d'attente est active, sinon tout de suite.
+
+    - File active : la requête n'attend pas le fournisseur SMS ; en cas d'échec, la tâche réessaie
+      (jusqu'à 4 fois, avec attente croissante) puis supprime le code non livré (`code_id`).
+    - File injoignable (Redis arrêté) : envoi immédiat, comme sans Celery.
+    - Envoi immédiat qui échoue : lève SMSError.
+    """
+    if file_attente_active():
+        try:
+            from .tasks import envoyer_sms_tache
+            envoyer_sms_tache.apply_async(args=(telephone, message, code_id), retry=False)
+            return 'planifie'
+        except Exception:
+            logger.exception("File d'attente injoignable : envoi direct du SMS")
+    envoyer_sms(telephone, message)
+    return 'envoye'

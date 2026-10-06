@@ -22,3 +22,8 @@ def oauth_disponibles(request):
         'oauth_facebook': actif('facebook'),
         'oauth_apple': actif('apple'),
     }
+
+
+def sms_mode_test(request):
+    """Vrai quand aucun vrai SMS n'est envoyé (développement) : les pages l'indiquent clairement."""
+    return {'sms_mode_test': bool(settings.DEBUG and settings.SMS_BACKEND == 'console')}

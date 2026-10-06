@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 206" width="200" height="206" role="img" aria-label="Validé">
+  <defs>
+    <linearGradient id="anneau" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22b00a"/><stop offset="1" stop-color="#128a00"/>
+    </linearGradient>
+    <linearGradient id="corps" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6bdc43"/><stop offset=".55" stop-color="#3dbf1b"/><stop offset="1" stop-color="#1c9700"/>
+    </linearGradient>
+    <linearGradient id="reflet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="flou" x="-30%" y="-100%" width="160%" height="300%"><feGaussianBlur stdDeviation="4"/></filter>
+  </defs>
+  <ellipse cx="100" cy="198" rx="62" ry="6" fill="#000" opacity=".25" filter="url(#flou)"/>
+  <circle cx="100" cy="98" r="92" fill="url(#anneau)"/>
+  <circle cx="100" cy="98" r="84" fill="url(#corps)"/>
+  <path d="M25 92 A76 76 0 0 1 175 92 Q100 126 25 92 Z" fill="url(#reflet)"/>
+  <path d="M60 104 L89 133 L142 72" fill="none" stroke="#000" stroke-opacity=".2" stroke-width="26"
+        stroke-linecap="round" stroke-linejoin="round" transform="translate(0 4)"/>
+  <path d="M60 104 L89 133 L142 72" fill="none" stroke="#fff" stroke-width="26"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

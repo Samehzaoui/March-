@@ -1,3 +1,4 @@
+import json
 import re
 from datetime import timedelta
 from decimal import Decimal
@@ -124,7 +125,7 @@ class ConnexionSMSTests(BaseTest):
         self.assertEqual(sms.outbox, [])
 
     def test_echec_fournisseur_ne_laisse_pas_de_code(self):
-        with mock.patch('comptes.services.envoyer_sms', side_effect=sms.SMSError('panne')):
+        with mock.patch('comptes.sms.envoyer_sms', side_effect=sms.SMSError('panne')):
             resultat = services.envoyer_code_connexion(TEL)
         self.assertFalse(resultat.ok)
         self.assertEqual(CodeSMS.objects.count(), 0)
@@ -241,3 +242,127 @@ class ValidationCommandeTests(BaseTest):
         self.assertContains(self.client.get(reverse('boutique:accueil')), 'saisissez le code reçu par SMS')
         anonyme = Client()
         self.assertEqual(anonyme.get(reverse('comptes:connexion')).status_code, 200)
+
+
+# ----------------------------------------------------------------------------- TÂCHES DE FOND (SMS + EMAILS)
+from django.core import mail
+from django.core.cache import cache as cache_django
+from django.test import override_settings
+
+
+@override_settings(CELERY_TASK_ALWAYS_EAGER=False, SMS_BACKEND='locmem')
+class SMSEnArrierePlanTests(TestCase):
+    """File d'attente active : le SMS est planifié, jamais envoyé pendant la requête."""
+    TEL = '+21622123456'
+
+    def setUp(self):
+        sms.outbox.clear()
+        cache_django.clear()
+
+    def test_le_sms_est_planifie_pas_envoye_dans_la_requete(self):
+        with mock.patch('comptes.tasks.envoyer_sms_tache.apply_async') as planifier:
+            resultat = services.envoyer_code_connexion(self.TEL)
+        self.assertTrue(resultat.ok)
+        self.assertEqual(sms.outbox, [])                                    # rien envoyé en direct
+        args = planifier.call_args[1]['args']
+        self.assertEqual(args[0], self.TEL)
+        self.assertRegex(args[1], r'code de connexion \d{6}')
+        entree = CodeSMS.objects.get(telephone=self.TEL)
+        self.assertEqual(args[2], entree.pk)
+        self.assertFalse(planifier.call_args[1]['retry'])
+
+    def test_file_injoignable_envoi_direct_de_secours(self):
+        with mock.patch('comptes.tasks.envoyer_sms_tache.apply_async', side_effect=OSError('redis arrêté')):
+            resultat = services.envoyer_code_connexion(self.TEL)
+        self.assertTrue(resultat.ok)
+        self.assertEqual(len(sms.outbox), 1)                                # le client reçoit quand même son code
+        self.assertTrue(CodeSMS.objects.filter(telephone=self.TEL).exists())
+
+    def test_file_et_fournisseur_en_panne_le_client_est_prevenu(self):
+        with mock.patch('comptes.tasks.envoyer_sms_tache.apply_async', side_effect=OSError('redis arrêté')), \
+             mock.patch('comptes.sms.envoyer_sms', side_effect=sms.SMSError('panne')):
+            resultat = services.envoyer_code_connexion(self.TEL)
+        self.assertFalse(resultat.ok)
+        self.assertFalse(CodeSMS.objects.filter(telephone=self.TEL).exists())
+
+    def test_ancien_code_invalide_et_nouveau_utilisable(self):
+        with mock.patch('comptes.tasks.envoyer_sms_tache.apply_async') as planifier:
+            services.envoyer_code_connexion(self.TEL)
+            CodeSMS.objects.update(cree_le=timezone.now() - timedelta(minutes=2))
+            services.envoyer_code_connexion(self.TEL)
+        self.assertEqual(CodeSMS.objects.filter(telephone=self.TEL, utilise=False).count(), 1)
+        message = planifier.call_args[1]['args'][1]
+        code = re.search(r'(\d{6})', message).group(1)
+        self.assertEqual(services.verifier_code_connexion(self.TEL, code), (True, None))
+
+    def test_la_tache_envoie_le_sms(self):
+        from comptes import tasks
+        tasks.envoyer_sms_tache.apply(args=(self.TEL, 'Bonjour', None))
+        self.assertEqual(sms.outbox, [{'telephone': self.TEL, 'message': 'Bonjour'}])
+
+    def test_la_tache_reessaie_puis_supprime_le_code_non_livre(self):
+        from comptes import tasks
+        entree = CodeSMS.objects.create(telephone=self.TEL, objet=CodeSMS.OBJET_CONNEXION, code_hash='x',
+                                        expire_le=timezone.now() + timedelta(minutes=5))
+        with mock.patch('comptes.tasks.envoyer_sms', side_effect=sms.SMSError('panne')) as envoi:
+            resultat = tasks.envoyer_sms_tache.apply(args=(self.TEL, 'msg', entree.pk), throw=False)
+        self.assertTrue(resultat.failed())
+        self.assertIsInstance(resultat.result, sms.SMSError)
+        self.assertEqual(envoi.call_count, 5)                               # 1 essai + 4 nouveaux essais
+        self.assertFalse(CodeSMS.objects.filter(pk=entree.pk).exists())     # le client peut en redemander un
+
+    def test_echec_definitif_ne_touche_pas_un_code_deja_utilise(self):
+        from comptes import tasks
+        entree = CodeSMS.objects.create(telephone=self.TEL, objet=CodeSMS.OBJET_CONNEXION, code_hash='x', utilise=True,
+                                        expire_le=timezone.now() + timedelta(minutes=5))
+        tasks.TacheSMS().on_failure(sms.SMSError('x'), 'id', (self.TEL, 'm', entree.pk), {}, None)
+        self.assertTrue(CodeSMS.objects.filter(pk=entree.pk).exists())
+
+
+@override_settings(CELERY_TASK_ALWAYS_EAGER=False, EMAIL_BACKEND='comptes.emailing.EmailAsyncBackend',
+                   EMAIL_BACKEND_REEL='django.core.mail.backends.locmem.EmailBackend')
+class EmailEnArrierePlanTests(TestCase):
+    def message(self, **kw):
+        m = mail.EmailMultiAlternatives('Sujet é', 'Texte', 'shop@test.tn', ['a@test.tn', 'b@test.tn'],
+                                        cc=['c@test.tn'], bcc=['d@test.tn'], reply_to=['r@test.tn'],
+                                        headers={'X-Test': '1'}, **kw)
+        m.attach_alternative('<p>Bonjour <b>Sami</b></p>', 'text/html')
+        return m
+
+    def test_email_planifie_puis_envoye_identique(self):
+        from comptes import tasks
+        with mock.patch('comptes.tasks.envoyer_email_tache.apply_async') as planifier:
+            n = self.message().send()
+        self.assertEqual(n, 1)
+        self.assertEqual(mail.outbox, [])                                   # rien envoyé pendant la requête
+        donnees = planifier.call_args[1]['args'][0]
+        json.dumps(donnees)                                                 # sérialisable par Celery
+        tasks.envoyer_email_tache.apply(args=(donnees,))                    # ce que fait le worker
+        envoye = mail.outbox[0]
+        self.assertEqual((envoye.subject, envoye.body, envoye.from_email), ('Sujet é', 'Texte', 'shop@test.tn'))
+        self.assertEqual((envoye.to, envoye.cc, envoye.bcc, envoye.reply_to),
+                         (['a@test.tn', 'b@test.tn'], ['c@test.tn'], ['d@test.tn'], ['r@test.tn']))
+        self.assertEqual(envoye.extra_headers['X-Test'], '1')
+        self.assertEqual(envoye.alternatives[0][1], 'text/html')
+        self.assertIn('Sami', envoye.alternatives[0][0])
+
+    def test_file_injoignable_envoi_direct(self):
+        with mock.patch('comptes.tasks.envoyer_email_tache.apply_async', side_effect=OSError('redis arrêté')):
+            n = self.message().send()
+        self.assertEqual((n, len(mail.outbox)), (1, 1))
+
+    def test_piece_jointe_envoyee_directement(self):
+        m = self.message()
+        m.attach('facture.txt', 'contenu', 'text/plain')
+        with mock.patch('comptes.tasks.envoyer_email_tache.apply_async') as planifier:
+            m.send()
+        planifier.assert_not_called()
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_inscription_allauth_passe_par_la_file(self):
+        with mock.patch('comptes.tasks.envoyer_email_tache.apply_async') as planifier:
+            r = self.client.post('/accounts/signup/', {'email': 'neuf@test.tn', 'password1': 'Zr7!kLm92xQ', 'password2': 'Zr7!kLm92xQ'})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(planifier.call_count, 1)
+        self.assertIn('neuf@test.tn', planifier.call_args[1]['args'][0]['to'])
+        self.assertEqual(mail.outbox, [])

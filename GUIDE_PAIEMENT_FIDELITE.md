@@ -75,3 +75,17 @@ Les notifications serveur à serveur de Konnect et Flouci ne peuvent pas joindre
 python manage.py test
 ```
 Aucun appel réseau réel : les réponses de Konnect et Flouci sont simulées.
+
+## 📱 Codes SMS : tester, puis envoyer de vrais SMS
+Par défaut (`SMS_BACKEND=console`) **aucun SMS réel n'est envoyé** : le code s'affiche dans le terminal où tourne `runserver`.
+- Sur la fiche d'une commande « Confirmée », le dashboard affiche aussi le dernier SMS préparé (mode test, uniquement avec `DEBUG = True`).
+- Pages client : un bandeau « Mode test » rappelle que le code est dans le terminal.
+
+Pour de vrais SMS, dans `.env` :
+```
+SMS_BACKEND=twilio
+TWILIO_ACCOUNT_SID=...
+TWILIO_AUTH_TOKEN=...
+TWILIO_FROM=+1...            # numéro ou identifiant d'expéditeur Twilio
+```
+Vérifiez chez Twilio que l'envoi vers la Tunisie (+216) est activé pour votre compte et quel expéditeur est autorisé. Un fournisseur SMS tunisien peut être ajouté dans `comptes/sms.py` (fonction `_envoyer_xxx` + entrée dans `BACKENDS`).

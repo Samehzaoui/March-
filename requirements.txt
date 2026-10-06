@@ -6,3 +6,5 @@ django-allauth>=65.0
 requests>=2.31
 PyJWT>=2.8
 cryptography>=42.0
+celery>=5.3,<6
+redis>=5.0
