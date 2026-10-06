@@ -78,20 +78,6 @@ python manage.py peupler_donnees
 python manage.py runserver
 ```
 
-Le site est ensuite accessible sur : **http://127.0.0.1:8000/**
-
-## Accès administrateur par défaut
-
-Un compte administrateur de démonstration est déjà créé dans la base fournie :
-
-- URL de connexion : **http://127.0.0.1:8000/gestion/login/**
-- Identifiant : **admin**
-- Mot de passe : **Admin@2026**
-
-⚠️ **Pensez à changer ce mot de passe avant toute mise en production**, ou créez
-un nouveau compte avec `python manage.py createsuperuser` et supprimez l'ancien
-depuis `/admin/`.
-
 ## Structure du projet
 
 ```
