@@ -53,7 +53,7 @@
       <ul class="list-group list-group-flush mb-3">
         {% for ligne in commande.lignes.all %}
         <li class="list-group-item d-flex justify-content-between px-0">
-          <span>{{ ligne.quantite }} × {{ ligne.nom_produit }}</span>
+          <span>{{ ligne.quantite }} × {{ ligne.nom_produit }}{% if ligne.produit.nom_ar %} <span class="text-muted">·</span> <bdi class="nom-ar" lang="ar" dir="rtl">{{ ligne.produit.nom_ar }}</bdi>{% endif %}</span>
           <span>{{ ligne.sous_total }} DT</span>
         </li>
         {% endfor %}

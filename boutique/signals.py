@@ -17,13 +17,13 @@ def generer_slug_unique(instance, base_slug, model):
 @receiver(pre_save, sender=Produit)
 def produit_pre_save(sender, instance, **kwargs):
     if not instance.slug:
-        instance.slug = generer_slug_unique(instance, slugify(instance.nom), Produit)
+        instance.slug = generer_slug_unique(instance, slugify(instance.nom) or 'produit', Produit)
 
 
 @receiver(pre_save, sender=Categorie)
 def categorie_pre_save(sender, instance, **kwargs):
     if not instance.slug:
-        instance.slug = generer_slug_unique(instance, slugify(instance.nom), Categorie)
+        instance.slug = generer_slug_unique(instance, slugify(instance.nom) or 'categorie', Categorie)
 
 
 @receiver(post_save, sender=Avis)

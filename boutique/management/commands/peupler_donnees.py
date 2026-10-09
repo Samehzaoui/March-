@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 from boutique.models import Categorie, Produit
+from boutique.noms_arabes import nom_arabe_pour
 
 LEGUMES = [
     ("Tomate", "Nabeul", "kg", (0.8, 2.0)),
@@ -88,7 +89,7 @@ class Command(BaseCommand):
             obj, cree = Produit.objects.get_or_create(
                 slug=slug,
                 defaults=dict(
-                    categorie=cat_legumes, nom=nom, description=DESCRIPTIONS_LEGUME,
+                    categorie=cat_legumes, nom=nom, nom_ar=nom_arabe_pour(nom), description=DESCRIPTIONS_LEGUME,
                     prix=prix, unite=unite, stock=random.randint(20, 200),
                     origine=origine, bio=random.random() < 0.2, disponible=True,
                 )
@@ -101,7 +102,7 @@ class Command(BaseCommand):
             obj, cree = Produit.objects.get_or_create(
                 slug=slug,
                 defaults=dict(
-                    categorie=cat_fruits, nom=nom, description=DESCRIPTIONS_FRUIT,
+                    categorie=cat_fruits, nom=nom, nom_ar=nom_arabe_pour(nom), description=DESCRIPTIONS_FRUIT,
                     prix=prix, unite=unite, stock=random.randint(20, 200),
                     origine=origine, bio=random.random() < 0.2, disponible=True,
                 )

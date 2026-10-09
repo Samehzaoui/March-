@@ -8,6 +8,8 @@ from django.db.models import Avg, Count, Q
 from django.urls import reverse
 from django.utils import timezone
 
+from .validators import valider_arabe
+
 MILLIME = Decimal('0.001')
 
 
@@ -47,6 +49,8 @@ class Produit(models.Model):
     ]
     categorie = models.ForeignKey(Categorie, related_name='produits', on_delete=models.CASCADE)
     nom = models.CharField(max_length=150)
+    nom_ar = models.CharField("Nom en arabe", max_length=150, blank=True, validators=[valider_arabe],
+                              help_text="Facultatif. Affiché à côté du nom français. Ex : طماطم")
     slug = models.SlugField(max_length=160, unique=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='produits/', blank=True, null=True)

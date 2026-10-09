@@ -31,7 +31,10 @@
     <div class="col-md-7">
       {% if produit.bio %}<span class="badge badge-bio mb-2">Produit Bio</span>{% endif %}
       {% if produit.en_stock %}<span class="badge badge-disponible mb-2">Disponible</span>{% endif %}
-      <h1 class="h3 fw-bold">{{ produit.nom }}</h1>
+      <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2">
+        <h1 class="h3 fw-bold mb-0">{{ produit.nom }}</h1>
+        {% if produit.nom_ar %}<span class="nom-ar nom-ar-grand" lang="ar" dir="rtl">{{ produit.nom_ar }}</span>{% endif %}
+      </div>
       {% if produit.nb_avis %}
         <a href="#avis" class="text-decoration-none small d-inline-block mb-1"><span class="etoiles">{{ produit.note_moyenne|etoiles }}</span> <strong>{{ produit.note_moyenne }}</strong>/5 · {{ produit.nb_avis }} avis</a>
       {% endif %}

@@ -19,8 +19,9 @@
   <div class="card-body">
     {% if produit.bio %}<span class="badge badge-bio mb-1">Bio</span>{% endif %}
     {% if produit.en_stock %}<span class="badge badge-disponible mb-1">Disponible</span>{% endif %}
-    <h6 class="card-title mb-1">
+    <h6 class="card-title mb-1 d-flex justify-content-between align-items-baseline flex-wrap gap-2">
       <a href="{{ produit.get_absolute_url }}" class="text-decoration-none text-dark">{{ produit.nom }}</a>
+      {% if produit.nom_ar %}<span class="nom-ar" lang="ar" dir="rtl">{{ produit.nom_ar }}</span>{% endif %}
     </h6>
     <p class="small text-muted mb-1">{{ produit.categorie.nom }}{% if produit.origine %} · {{ produit.origine }}{% endif %}</p>
     {% if produit.nb_avis %}<p class="small mb-1"><span class="etoiles">{{ produit.note_moyenne|etoiles }}</span> <span class="text-muted">({{ produit.nb_avis }})</span></p>{% endif %}

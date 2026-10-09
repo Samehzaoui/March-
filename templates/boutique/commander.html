@@ -42,7 +42,7 @@
         <ul class="list-group list-group-flush mb-3">
           {% for item in panier %}
           <li class="list-group-item d-flex justify-content-between px-0">
-            <span>{{ item.quantite }} × {{ item.nom }}</span>
+            <span>{{ item.quantite }} × {{ item.nom }}{% if item.produit.nom_ar %} <span class="text-muted">·</span> <bdi class="nom-ar" lang="ar" dir="rtl">{{ item.produit.nom_ar }}</bdi>{% endif %}</span>
             <span>{{ item.sous_total }} DT</span>
           </li>
           {% endfor %}

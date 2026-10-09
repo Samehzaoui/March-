@@ -23,7 +23,7 @@
       <tbody>
         {% for item in panier %}
         <tr>
-          <td>{{ item.nom }}</td>
+          <td>{{ item.nom }}{% if item.produit.nom_ar %} <span class="text-muted">·</span> <bdi class="nom-ar" lang="ar" dir="rtl">{{ item.produit.nom_ar }}</bdi>{% endif %}</td>
           <td>{{ item.prix }} DT / {{ item.unite }}</td>
           <td style="max-width:110px;">
             <form method="post" action="{% url 'boutique:panier_modifier' item.id %}" class="d-flex">

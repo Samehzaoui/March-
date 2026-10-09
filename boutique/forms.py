@@ -42,11 +42,12 @@ class CommandeForm(forms.ModelForm):
 class ProduitForm(forms.ModelForm):
     class Meta:
         model = Produit
-        fields = ['categorie', 'nom', 'slug', 'description', 'image', 'prix', 'unite',
+        fields = ['categorie', 'nom', 'nom_ar', 'slug', 'description', 'image', 'prix', 'unite',
                   'stock', 'origine', 'bio', 'disponible']
         widgets = {
             'categorie': forms.Select(attrs={'class': 'form-select'}),
             'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'nom_ar': forms.TextInput(attrs={'class': 'form-control', 'dir': 'rtl', 'lang': 'ar', 'placeholder': 'طماطم'}),
             'slug': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'genere-automatiquement-si-vide'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),

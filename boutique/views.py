@@ -47,7 +47,7 @@ def liste_produits(request):
             produits = produits.filter(categorie=categorie_active)
         if type_produit:
             produits = produits.filter(categorie__type_produit=type_produit)
-        produits = produits.filter(Q(nom__icontains=q) | Q(description__icontains=q))
+        produits = produits.filter(Q(nom__icontains=q) | Q(nom_ar__icontains=q) | Q(description__icontains=q))
     else:
         produits = catalogue.produits(categorie_slug if categorie_active else None, type_produit)
 

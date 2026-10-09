@@ -43,6 +43,10 @@ tous types de fruits et légumes en ligne, avec un espace d'administration
 - **Paiement en ligne** Konnect et Flouci, en plus du paiement à la livraison
 - Détails et configuration : `GUIDE_PAIEMENT_FIDELITE.md`
 
+### Noms de produits en arabe (nouveau)
+- Champ facultatif « Nom en arabe » sur chaque produit (dashboard), affiché sur les cartes, la fiche, le panier et la commande ; recherche possible en arabe
+- `python manage.py ajouter_noms_arabes --dry-run` propose des noms arabes pour les produits de démonstration (jamais d'écrasement sans `--ecraser`)
+
 ### Performance et robustesse (nouveau)
 - Cache du catalogue (Redis) qui se vide tout seul, et **envoi des SMS / emails en arrière-plan** (Celery)
 - Optionnel : sans `REDIS_URL`, le site fonctionne exactement comme avant
@@ -77,6 +81,20 @@ python manage.py peupler_donnees
 # 6. Lancer le serveur de développement
 python manage.py runserver
 ```
+
+Le site est ensuite accessible sur : **http://127.0.0.1:8000/**
+
+## Accès administrateur par défaut
+
+Un compte administrateur de démonstration est déjà créé dans la base fournie :
+
+- URL de connexion : **http://127.0.0.1:8000/gestion/login/**
+- Identifiant : **admin**
+- Mot de passe : **Admin@2026**
+
+⚠️ **Pensez à changer ce mot de passe avant toute mise en production**, ou créez
+un nouveau compte avec `python manage.py createsuperuser` et supprimez l'ancien
+depuis `/admin/`.
 
 ## Structure du projet
 

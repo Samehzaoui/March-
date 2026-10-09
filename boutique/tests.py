@@ -903,3 +903,145 @@ class TestSante(TestCase):
         with mock.patch.object(celery_app, 'connection_for_write', side_effect=OSError('refusé')):
             r = self.client.get(reverse('sante'))
         self.assertEqual((r.status_code, r.json()['file_attente']), (503, 'ko'))
+
+
+# ----------------------------------------------------------------------------- NOMS EN ARABE
+from django.core.exceptions import ValidationError
+from django.core.management import call_command
+from io import StringIO
+
+from .noms_arabes import nom_arabe_pour
+from .validators import valider_arabe
+
+
+class TestNomsArabes(Base):
+    def setUp(self):
+        super().setUp()
+        self.tomate.nom_ar = 'طماطم'
+        self.tomate.save()
+
+    def test_validateur(self):
+        valider_arabe('')                         # facultatif
+        valider_arabe('طماطم')
+        valider_arabe('تين Figue')
+        for faux in ('Tomate', '123', '...'):
+            with self.assertRaises(ValidationError):
+                valider_arabe(faux)
+
+    def test_affiche_sur_carte_fiche_et_cache_a_jour(self):
+        html = self.client.get(reverse('boutique:liste_produits')).content.decode()
+        self.assertIn('طماطم', html)
+        self.assertIn('dir="rtl"', html)
+        fiche = self.client.get(self.tomate.get_absolute_url()).content.decode()
+        self.assertIn('طماطم', fiche)
+        self.tomate.nom_ar = 'بندورة'; self.tomate.save()                  # modifié : le cache se vide
+        self.assertIn('بندورة', self.client.get(reverse('boutique:liste_produits')).content.decode())
+        self.assertNotIn('طماطم', self.client.get(reverse('boutique:liste_produits')).content.decode())
+
+    def test_produit_sans_nom_arabe_inchange(self):
+        html = self.client.get(self.oignon.get_absolute_url()).content.decode()
+        self.assertNotIn('nom-ar-grand', html)
+
+    def test_echappement_html(self):
+        self.tomate.nom_ar = 'طماطم<script>alert(1)</script>'; self.tomate.save()
+        html = self.client.get(reverse('boutique:liste_produits')).content.decode()
+        self.assertNotIn('<script>alert(1)</script>', html)
+        self.assertIn('&lt;script&gt;', html)
+
+    def test_panier_commande_et_confirmation(self):
+        self.client.force_login(self.client_sms)
+        self.remplir_panier(self.client, quantite=2)
+        self.assertContains(self.client.get(reverse('boutique:panier')), 'طماطم')
+        self.assertContains(self.client.get(reverse('boutique:commander')), 'طماطم')
+        self.client.post(reverse('boutique:commander'), self.donnees_commande())
+        c = Commande.objects.get()
+        self.assertContains(self.client.get(reverse('boutique:commande_confirmee', args=[c.pk])), 'طماطم')
+
+    def test_recherche_par_le_nom_arabe(self):
+        r = self.client.get(reverse('boutique:liste_produits') + '?q=' + 'طماطم')
+        self.assertEqual([p.nom for p in r.context['produits']], ['Tomate'])
+        r = self.client.get(reverse('boutique:liste_produits') + '?q=' + 'بصل')
+        self.assertEqual(len(r.context['produits']), 0)
+
+    def donnees_produit(self, **extra):
+        d = {'categorie': self.cat.pk, 'nom': 'Poivron', 'nom_ar': 'فلفل', 'slug': '', 'description': '',
+             'prix': '3.000', 'unite': 'kg', 'stock': '5', 'origine': '', 'disponible': 'on'}
+        d.update(extra); return d
+
+    def test_dashboard_ajout_et_modification(self):
+        self.client.force_login(self.staff)
+        r = self.client.post(reverse('dashboard:produit_ajouter'), self.donnees_produit())
+        self.assertEqual(r.status_code, 302)
+        p = Produit.objects.get(nom='Poivron')
+        self.assertEqual((p.nom_ar, p.slug), ('فلفل', 'poivron'))
+        self.client.post(reverse('dashboard:produit_modifier', args=[p.pk]), self.donnees_produit(nom_ar='فلفل رومي', slug='poivron'))
+        p.refresh_from_db()
+        self.assertEqual(p.nom_ar, 'فلفل رومي')
+        page = self.client.get(reverse('dashboard:produits_liste')).content.decode()
+        self.assertIn('فلفل رومي', page)
+
+    def test_dashboard_refuse_un_nom_non_arabe_et_accepte_vide(self):
+        self.client.force_login(self.staff)
+        r = self.client.post(reverse('dashboard:produit_ajouter'), self.donnees_produit(nom_ar='Poivron'))
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(Produit.objects.filter(nom='Poivron').exists())
+        r = self.client.post(reverse('dashboard:produit_ajouter'), self.donnees_produit(nom_ar=''))
+        self.assertEqual(r.status_code, 302)
+
+    def test_nom_francais_en_arabe_ne_casse_plus_le_site(self):
+        """Avant : slug vide -> page produit en erreur."""
+        a = Produit.objects.create(categorie=self.cat, nom='خيار', slug='', prix=D('1'), stock=1)
+        b = Produit.objects.create(categorie=self.cat, nom='جزر', slug='', prix=D('1'), stock=1)
+        self.assertEqual((a.slug, b.slug), ('produit', 'produit-2'))
+        for p in (a, b):
+            self.assertEqual(self.client.get(p.get_absolute_url()).status_code, 200)
+        c = Categorie.objects.create(nom='فواكه', slug='', type_produit='fruit')
+        self.assertEqual(c.slug, 'categorie')
+        self.assertEqual(self.client.get(reverse('boutique:categorie', args=[c.slug])).status_code, 200)
+
+    def test_suggestions_tolerantes(self):
+        self.assertEqual(nom_arabe_pour('Menthe (Nãanãa)'), 'نعناع')
+        self.assertEqual(nom_arabe_pour('menthe (Nāanāa)'), 'نعناع')
+        self.assertEqual(nom_arabe_pour('Épinard'), 'سبانخ')
+        self.assertEqual(nom_arabe_pour('Epinard'), 'سبانخ')
+        self.assertEqual(nom_arabe_pour('Courge (Gara)'), 'قرع')
+        self.assertEqual(nom_arabe_pour('Courgette'), 'كوسة')
+        self.assertEqual(nom_arabe_pour('Nèfle (Mesmari)'), '')            # volontairement absent : à compléter
+        self.assertEqual(nom_arabe_pour(''), '')
+
+    def lancer(self, *args):
+        sortie = StringIO(); call_command('ajouter_noms_arabes', *args, stdout=sortie); return sortie.getvalue()
+
+    def test_commande_de_remplissage(self):
+        menthe = Produit.objects.create(categorie=self.cat, nom='Menthe (Nãanãa)', prix=D('1'), stock=1)
+        nefle = Produit.objects.create(categorie=self.cat, nom='Nèfle (Mesmari)', prix=D('1'), stock=1)
+        perso = Produit.objects.create(categorie=self.cat, nom='Persil', nom_ar='معدنوس', prix=D('1'), stock=1)
+        self.oignon.nom_ar = ''; self.oignon.save()
+        # simulation : rien n'est écrit
+        sortie = self.lancer('--dry-run')
+        self.assertIn('rien n\'a été écrit', sortie)
+        menthe.refresh_from_db(); self.assertEqual(menthe.nom_ar, '')
+        # exécution
+        sortie = self.lancer()
+        for p in (menthe, perso, self.oignon, self.tomate, nefle):
+            p.refresh_from_db()
+        self.assertEqual((menthe.nom_ar, self.oignon.nom_ar), ('نعناع', 'بصل'))
+        self.assertEqual(perso.nom_ar, 'معدنوس')                           # saisie personnelle conservée
+        self.assertEqual(self.tomate.nom_ar, 'طماطم')
+        self.assertEqual(nefle.nom_ar, '')
+        self.assertIn('Nèfle (Mesmari)', sortie)                            # signalé comme à compléter
+        # idempotent, et --ecraser remplace
+        self.assertIn('0 nom(s) arabe(s) remplis', self.lancer())
+        self.lancer('--ecraser'); perso.refresh_from_db()
+        self.assertEqual(perso.nom_ar, 'بقدونس')
+
+    def test_peupler_donnees_remplit_les_noms_arabes(self):
+        Produit.objects.all().delete()
+        call_command('peupler_donnees', stdout=StringIO())
+        self.assertEqual(Produit.objects.get(slug='tomate').nom_ar, 'طماطم')
+        self.assertEqual(Produit.objects.exclude(nom_ar='').count(), 49)    # 50 produits, sans la nèfle
+
+    def test_avis_et_dashboard_pages_toujours_ok(self):
+        self.client.force_login(self.staff)
+        for nom in ('produits_liste', 'avis_liste', 'clients_liste'):
+            self.assertEqual(self.client.get(reverse(f'dashboard:{nom}')).status_code, 200)

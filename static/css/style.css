@@ -579,3 +579,13 @@ a:hover {
 }
 .icone-coupon { height: 1.35em; width: auto; vertical-align: -.3em; }
 .icone-coupon-titre { height: 38px; width: auto; vertical-align: middle; margin-right: .35rem; }
+
+/* ---------- Noms de produits en arabe ---------- */
+.nom-ar {
+    font-family: 'Cairo', 'Noto Sans Arabic', 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-weight: 600;
+    color: var(--c-teal-dark);
+    line-height: 1.4;
+}
+.nom-ar-grand { font-size: 1.5rem; }
+td .nom-ar, li .nom-ar, span > .nom-ar { font-weight: 400; }
