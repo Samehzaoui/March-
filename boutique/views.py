@@ -6,6 +6,7 @@ from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from . import catalogue, fidelite
@@ -153,7 +154,10 @@ def panier_ajouter(request, produit_id):
     quantite = max(1, quantite)
     panier.ajouter(produit, quantite)
     messages.success(request, f"« {produit.nom} » a été ajouté au panier.")
-    return redirect(request.POST.get('next') or 'boutique:panier')
+    suivant = request.POST.get('next') or ''
+    if suivant and url_has_allowed_host_and_scheme(suivant, allowed_hosts={request.get_host()}):
+        return redirect(suivant)
+    return redirect('boutique:panier')
 
 
 @require_POST

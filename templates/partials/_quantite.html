@@ -1,0 +1,9 @@
+<div class="qte" data-qte>
+  <button type="button" class="qte-btn" data-qte-moins hidden aria-label="Diminuer la quantité">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>
+  </button>
+  <input type="number" name="quantite" value="1" min="1"{% if maximum %} max="{{ maximum }}"{% endif %} inputmode="numeric" class="qte-input" aria-label="Quantité">
+  <button type="button" class="qte-btn" data-qte-plus hidden aria-label="Augmenter la quantité">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</div>

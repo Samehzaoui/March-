@@ -31,10 +31,8 @@
     <div class="col-md-7">
       {% if produit.bio %}<span class="badge badge-bio mb-2">Produit Bio</span>{% endif %}
       {% if produit.en_stock %}<span class="badge badge-disponible mb-2">Disponible</span>{% endif %}
-      <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2">
-        <h1 class="h3 fw-bold mb-0">{{ produit.nom }}</h1>
-        {% if produit.nom_ar %}<span class="nom-ar nom-ar-grand" lang="ar" dir="rtl">{{ produit.nom_ar }}</span>{% endif %}
-      </div>
+      <h1 class="h3 fw-bold mb-0">{{ produit.nom }}</h1>
+      {% if produit.nom_ar %}<p class="nom-ar nom-ar-grand" lang="ar" dir="rtl">{{ produit.nom_ar }}</p>{% endif %}
       {% if produit.nb_avis %}
         <a href="#avis" class="text-decoration-none small d-inline-block mb-1"><span class="etoiles">{{ produit.note_moyenne|etoiles }}</span> <strong>{{ produit.note_moyenne }}</strong>/5 · {{ produit.nb_avis }} avis</a>
       {% endif %}
@@ -47,10 +45,10 @@
 
       {% if produit.en_stock %}
         <p class="text-brand small">✔ En stock ({{ produit.stock }} disponible{{ produit.stock|pluralize }})</p>
-        <form method="post" action="{% url 'boutique:panier_ajouter' produit.id %}" class="d-flex gap-2 mt-3" style="max-width:300px;">
+        <form method="post" action="{% url 'boutique:panier_ajouter' produit.id %}" class="ajout-form mt-3" data-ajout-anime>
           {% csrf_token %}
-          <input type="number" name="quantite" value="1" min="1" max="{{ produit.stock }}" class="form-control">
-          <button type="submit" class="btn btn-brand text-nowrap px-4">Ajouter</button>
+          {% include 'partials/_quantite.html' with maximum=produit.stock %}
+          {% include 'partials/_bouton_ajouter.html' with libelle='Ajouter au panier' %}
         </form>
       {% else %}
         <p class="text-danger">Rupture de stock</p>

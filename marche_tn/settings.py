@@ -76,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'boutique.context_processors.types_categories',
                 'boutique.context_processors.moyens_paiement_global',
+                'boutique.context_processors.version_statique',
                 'comptes.context_processors.commandes_a_valider',
                 'comptes.context_processors.oauth_disponibles',
                 'comptes.context_processors.sms_mode_test',

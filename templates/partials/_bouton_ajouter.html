@@ -1,0 +1,8 @@
+<button type="submit" class="btn-ajouter{% if compact %} btn-ajouter-compact{% endif %}">
+  <span class="btn-ajouter-icone" aria-hidden="true">
+    <svg class="chariot" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="17" cy="19" r="2"/><path d="M17 17H6V3H4"/><path d="M6 5l14 1-1 7H6"/></svg>
+    <span class="article"></span>
+  </span>
+  <span class="btn-ajouter-texte">{{ libelle|default:"Ajouter" }}</span>
+  <span class="btn-ajouter-ajoute">Ajouté !</span>
+</button>

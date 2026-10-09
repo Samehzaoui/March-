@@ -587,5 +587,87 @@ a:hover {
     color: var(--c-teal-dark);
     line-height: 1.4;
 }
-.nom-ar-grand { font-size: 1.5rem; }
-td .nom-ar, li .nom-ar, span > .nom-ar { font-weight: 400; }
+/* Sous le nom français, aligné à gauche comme lui, en grand et en gras */
+.nom-ar-grand, .nom-ar-carte { display: block; text-align: left; font-weight: 700; margin: 0; }
+.nom-ar-grand { font-size: 2rem; line-height: 1.3; margin-bottom: .5rem; }
+.nom-ar-carte { font-size: 1.15rem; margin-bottom: .25rem; }
+
+/* ---------- Quantité : cadre avec boutons − et + ---------- */
+.ajout-form { display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px; }
+.qte {
+    display: inline-flex; align-items: stretch; height: 46px;
+    border: 1.5px solid var(--c-teal); border-radius: 12px; overflow: hidden; background: #fff;
+    transition: box-shadow .2s ease;
+}
+.qte:focus-within { box-shadow: 0 0 0 .22rem rgba(2, 178, 162, .2); }
+.qte-btn {
+    width: 42px; border: 0; background: var(--c-teal-light); color: var(--c-teal-dark);
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: background .15s ease, color .15s ease, transform .1s ease;
+}
+.qte-btn:hover:not(:disabled) { background: var(--c-teal); color: #fff; }
+.qte-btn:active:not(:disabled) { transform: scale(.9); }
+.qte-btn:disabled { opacity: .35; cursor: not-allowed; }
+.qte-btn[hidden] { display: none; }
+.qte-input {
+    width: 60px; border: 0; outline: 0; text-align: center; background: transparent;
+    font-size: 1.1rem; font-weight: 600; color: var(--c-navy);
+    -moz-appearance: textfield; appearance: textfield;
+}
+.qte-input::-webkit-outer-spin-button, .qte-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* ---------- Bouton « Ajouter au panier » : icône de panier + effet marchandise ---------- */
+.btn-ajouter {
+    position: relative; overflow: hidden; isolation: isolate;
+    display: inline-flex; align-items: center; justify-content: center; gap: .6rem;
+    height: 46px; padding: 0 1.4rem; border: 0; border-radius: 12px; cursor: pointer;
+    background: var(--c-teal); color: #fff; font-weight: 600; font-size: 1rem; white-space: nowrap;
+    transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.btn-ajouter-compact { width: 100%; height: 40px; font-size: .9rem; padding: 0 .8rem; }
+.btn-ajouter::after {                       /* reflet qui traverse le bouton */
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, .38) 50%, transparent 70%);
+    transform: translateX(-120%);
+}
+.btn-ajouter:hover { background: var(--c-teal-dark); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(2, 178, 162, .38); }
+.btn-ajouter:hover::after { transform: translateX(120%); transition: transform .7s ease; }
+.btn-ajouter:active { transform: translateY(0) scale(.97); box-shadow: 0 3px 8px rgba(2, 178, 162, .3); }
+.btn-ajouter:focus-visible { outline: 3px solid rgba(4, 46, 85, .55); outline-offset: 2px; }
+
+.btn-ajouter-icone { position: relative; display: inline-flex; width: 22px; height: 22px; }
+.btn-ajouter .chariot { display: block; }
+.btn-ajouter .article {                     /* le petit colis qui tombe dans le panier */
+    position: absolute; left: 8px; top: -4px; width: 8px; height: 8px; border-radius: 2px;
+    background: #ffc233; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .15); opacity: 0; pointer-events: none;
+}
+.btn-ajouter-ajoute { display: none; }
+.btn-ajouter.is-added .btn-ajouter-texte { display: none; }
+.btn-ajouter.is-added .btn-ajouter-ajoute { display: inline; }
+.btn-ajouter.is-added { background: #15a05a; }
+
+@media (prefers-reduced-motion: no-preference) {
+    .btn-ajouter:hover .chariot { animation: chariotRoule 1.1s ease-in-out infinite; }
+    .btn-ajouter:hover .article { animation: articleTombe 1.1s ease-in infinite; }
+    .btn-ajouter.is-added .chariot { animation: chariotSaute .5s ease-out; }
+    .btn-ajouter.is-added .article { animation: articleTombe .5s ease-in; }
+}
+@keyframes chariotRoule {
+    0%, 100% { transform: translateX(0) rotate(0); }
+    35% { transform: translateX(3px) rotate(-6deg); }
+    70% { transform: translateX(-1px) rotate(3deg); }
+}
+@keyframes articleTombe {
+    0% { opacity: 0; transform: translateY(-9px) rotate(-14deg); }
+    25% { opacity: 1; }
+    65% { opacity: 1; transform: translateY(8px) rotate(8deg); }
+    85%, 100% { opacity: 0; transform: translateY(9px) scale(.5); }
+}
+@keyframes chariotSaute {
+    0% { transform: translateY(0); } 40% { transform: translateY(-4px) scale(1.12); } 100% { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .btn-ajouter, .qte, .qte-btn { transition: none; }
+    .btn-ajouter:hover { transform: none; }
+    .btn-ajouter:hover::after { transition: none; }
+}

@@ -1045,3 +1045,89 @@ class TestNomsArabes(Base):
         self.client.force_login(self.staff)
         for nom in ('produits_liste', 'avis_liste', 'clients_liste'):
             self.assertEqual(self.client.get(reverse(f'dashboard:{nom}')).status_code, 200)
+
+
+# ----------------------------------------------------------------------------- FICHE PRODUIT : NOM ARABE, QUANTITÉ, BOUTON
+import os
+
+
+class TestFicheProduitDesign(Base):
+    def setUp(self):
+        super().setUp()
+        self.tomate.nom_ar = 'طماطم'; self.tomate.save()
+
+    def html(self, url):
+        return self.client.get(url).content.decode()
+
+    def test_nom_arabe_sous_le_nom_francais_en_grand_et_en_gras(self):
+        page = self.html(self.tomate.get_absolute_url())
+        titre, arabe = page.index('<h1 class="h3 fw-bold mb-0">Tomate</h1>'), page.index('class="nom-ar nom-ar-grand"')
+        self.assertLess(titre, arabe)                                       # le français d'abord, l'arabe dessous
+        self.assertIn('lang="ar" dir="rtl">طماطم</p>', page)
+        css = open(os.path.join(os.path.dirname(__file__), '..', 'static', 'css', 'style.css'), encoding='utf-8').read()
+        bloc = css[css.index('.nom-ar-grand, .nom-ar-carte'):][:120]
+        self.assertIn('font-weight: 700', bloc)                             # gras
+        self.assertIn('text-align: left', bloc)                             # sous le nom français, pas à l'autre bout
+
+    def test_carte_nom_arabe_sous_le_nom_francais(self):
+        page = self.html(reverse('boutique:liste_produits'))
+        self.assertLess(page.index('>Tomate</a>'), page.index('nom-ar nom-ar-carte'))
+
+    def test_cadre_de_quantite(self):
+        page = self.html(self.tomate.get_absolute_url())
+        self.assertIn('class="qte" data-qte', page)
+        self.assertIn('data-qte-moins hidden', page)                        # cachés sans JavaScript (le champ reste utilisable)
+        self.assertIn('data-qte-plus hidden', page)
+        self.assertIn('name="quantite" value="1" min="1" max="100"', page)  # plafond = stock
+        self.assertIn('aria-label="Quantité"', page)
+
+    def test_bouton_ajouter_avec_icone_et_animation(self):
+        page = self.html(self.tomate.get_absolute_url())
+        self.assertIn('class="btn-ajouter"', page)
+        self.assertIn('class="chariot"', page)                              # icône de panier
+        self.assertIn('class="article"', page)                              # le colis qui tombe
+        self.assertIn('Ajouter au panier', page)
+        self.assertIn('data-ajout-anime', page)
+        carte = self.html(reverse('boutique:liste_produits'))
+        self.assertIn('btn-ajouter btn-ajouter-compact', carte)
+
+    def test_produit_en_rupture_sans_bouton(self):
+        self.tomate.stock = 0; self.tomate.save()
+        page = self.html(self.tomate.get_absolute_url())
+        self.assertNotIn('btn-ajouter', page.split('Avis des clients')[0])
+        self.assertIn('Rupture de stock', page)
+
+    def test_ajout_au_panier_fonctionne_toujours(self):
+        r = self.client.post(reverse('boutique:panier_ajouter', args=[self.tomate.pk]), {'quantite': '3'})
+        self.assertEqual(r.status_code, 302)
+        self.assertContains(self.client.get(reverse('boutique:panier')), 'value="3"')
+
+    def test_redirection_apres_ajout_limitee_au_site(self):
+        url = reverse('boutique:panier_ajouter', args=[self.tomate.pk])
+        for suivant, attendu in (('/produits/', '/produits/'), ('https://pirate.example/', reverse('boutique:panier')),
+                                 ('//pirate.example/', reverse('boutique:panier')), ('javascript:alert(1)', reverse('boutique:panier')),
+                                 ('', reverse('boutique:panier'))):
+            with self.subTest(suivant):
+                r = self.client.post(url, {'quantite': '1', 'next': suivant})
+                self.assertEqual(r.headers['Location'], attendu)
+
+    def test_css_et_js_recharges_a_chaque_nouvelle_version(self):
+        from django.conf import settings as s
+        page = self.html(reverse('boutique:accueil'))
+        import re
+        v_css = int(re.search(r'style\.css\?v=(\d+)', page).group(1))
+        self.assertGreater(v_css, 0)
+        self.assertRegex(page, r'js/boutique\.js\?v=\d+" defer')
+        chemin = s.BASE_DIR / 'static' / 'css' / 'style.css'
+        ancien = chemin.stat().st_mtime
+        try:
+            os.utime(chemin, (ancien + 100, ancien + 100))
+            nouveau = int(re.search(r'style\.css\?v=(\d+)', self.html(reverse('boutique:accueil'))).group(1))
+            self.assertEqual(nouveau, int(ancien + 100))
+        finally:
+            os.utime(chemin, (ancien, ancien))
+
+    def test_fichiers_statiques_presents(self):
+        from django.contrib.staticfiles import finders
+        for f in ('js/boutique.js', 'css/style.css'):
+            self.assertIsNotNone(finders.find(f), f)
